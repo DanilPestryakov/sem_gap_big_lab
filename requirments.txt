@@ -1,0 +1,5 @@
+craft_text_detector
+opencv-python
+numpy
+pytesseract
+pillow
