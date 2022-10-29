@@ -2,13 +2,10 @@ from ..BlockSchemeTree import BlockSchemeTree
 
 
 class FuncStep(BlockSchemeTree):
-    def __init__(self, func_name, args_string, prev_step, next_step, parent_tree):
-        super(BlockSchemeTree, self).__init__()
+    def __init__(self, func_name, args_string, prev_step, parent_tree, step_type):
+        super().__init__(prev_step, parent_tree, step_type)
         self.func_name = func_name
         self.args_string = args_string
-        self.next_step = next_step
-        self.prev_step = prev_step
-        self.level = self.prev_step.level
         self.parent_tree = parent_tree
 
     def generate_code(self):
