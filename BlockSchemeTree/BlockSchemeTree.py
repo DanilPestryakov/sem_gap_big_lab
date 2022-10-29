@@ -5,6 +5,7 @@ class BlockSchemeTree:
         self.prev_step = None
         self.step_type = ''
         self.initial_step = initial_step
+        self.result_code = ''
 
     def generate_code(self):
         if self.initial_step is None:
