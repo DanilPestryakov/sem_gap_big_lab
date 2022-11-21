@@ -22,7 +22,7 @@ class BlockSchemeTree:
                 while curr_step is not None:
                     curr_step.generate_code()
                     curr_step = curr_step.next_step
-                print(self.result_code)
+                return self.result_code
             except Exception as e:
                 print(e)
 
