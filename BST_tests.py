@@ -3,6 +3,7 @@ from BlockSchemeTree.Steps import ConditionStep, FuncStep, SimpleCodeStep
 
 
 def test_1():
+    print(f"{'_' * 30}\nTest 1")
     bst = BlockSchemeTree()
     hello_step = FuncStep('hello', ['a', 'b'], bst, bst)
     str_1_step = SimpleCodeStep('print(a, b)', hello_step, bst)
@@ -11,7 +12,8 @@ def test_1():
     print(bst.generate_code())
 
 
-def test_2():
+def test_7():
+    print(f"{'_' * 30}\nTest 7")
     bst = BlockSchemeTree()
     minimum = FuncStep('minimum', ['a=7', 'b=3'], bst, bst)
     yes_tree = BlockSchemeTree()
@@ -28,4 +30,4 @@ def test_2():
 
 if __name__ == "__main__":
     test_1()
-    test_2()
+    test_7()
