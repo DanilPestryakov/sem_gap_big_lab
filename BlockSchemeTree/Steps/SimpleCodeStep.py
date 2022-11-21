@@ -1,9 +1,10 @@
 from ..BlockSchemeTree import BlockSchemeTree
+from .StepsTypeEnum import StepsTypesEnum
 
 
 class SimpleCodeStep(BlockSchemeTree):
-    def __init__(self, code_str, prev_step, parent_tree, step_type):
-        super().__init__(prev_step, parent_tree, step_type)
+    def __init__(self, code_str, prev_step, parent_tree):
+        super().__init__(prev_step, parent_tree, StepsTypesEnum.SimpleCodeStep)
         self.code_str = code_str
         self.parent_tree = parent_tree
 
