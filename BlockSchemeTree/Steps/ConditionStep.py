@@ -3,14 +3,18 @@ from .StepsTypeEnum import StepsTypesEnum
 
 
 class ConditionStep(BlockSchemeTree):
-    def __init__(self, func_name, args_string, prev_step, parent_tree):
+    def __init__(self, condition_string, yes_step, no_step, prev_step, parent_tree):
         super().__init__(prev_step, parent_tree, StepsTypesEnum.FuncStep)
-        self.func_name = func_name
-        self.args_string = args_string
-        self.parent_tree = parent_tree
+        self.condition_string = condition_string
+        self.yes_step = yes_step
+        self.no_step = no_step
 
     def generate_code(self):
         self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
-        sorted_args_strings = sorted(self.args_string, key=lambda x: "=" in x)
-        self.parent_tree.result_code = f'{self.parent_tree.result_code}def {self.func_name}' \
-                                       f'({", ".join(sorted_args_strings)}):'
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}if {self.condition_string}:\n'
+        self.yes_step.level = self.level + 1
+        self.no_step.level = self.level + 1
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.yes_step.generate_code()}\n'
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}else:\n'
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.no_step.generate_code()}'
