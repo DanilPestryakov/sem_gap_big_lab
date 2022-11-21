@@ -29,5 +29,6 @@ def test_7():
 
 
 if __name__ == "__main__":
-    test_1()
-    test_7()
+    tests = [test_1, test_7]
+    for test in tests:
+        test()
