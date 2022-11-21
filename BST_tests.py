@@ -1,5 +1,5 @@
 from BlockSchemeTree import BlockSchemeTree
-from BlockSchemeTree.Steps import ConditionStep, FuncStep, SimpleCodeStep
+from BlockSchemeTree.Steps import ConditionStep, CycleStep, FuncStep, SimpleCodeStep
 
 
 def test_1():
@@ -9,6 +9,19 @@ def test_1():
     str_1_step = SimpleCodeStep('print(a, b)', hello_step, bst)
 
     bst.set_initial_step(hello_step)
+    print(bst.generate_code())
+
+
+def test_6():
+    print(f"{'_' * 30}\nTest 6")
+    bst = BlockSchemeTree()
+    counter = FuncStep('counter', [], bst, bst)
+    iterable_tree = BlockSchemeTree()
+    print_step = SimpleCodeStep('print(i)', iterable_tree, iterable_tree)
+    iterator_step = CycleStep('i = 1', 'i > 10', 'i = i + 1', iterable_tree, counter, bst)
+
+    iterable_tree.set_initial_step(print_step)
+    bst.set_initial_step(counter)
     print(bst.generate_code())
 
 
@@ -29,6 +42,6 @@ def test_7():
 
 
 if __name__ == "__main__":
-    tests = [test_1, test_7]
+    tests = [test_1, test_6, test_7]
     for test in tests:
         test()
