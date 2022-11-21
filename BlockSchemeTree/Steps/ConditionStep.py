@@ -15,10 +15,11 @@ class ConditionStep(BlockSchemeTree):
         self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
         self.parent_tree.result_code = f'{self.parent_tree.result_code}if {self.condition_string}:'
         self.yes_tree.level = self.level + 1
-        self.no_tree.level = self.level + 1
         self.yes_tree.initial_step.level = self.level + 1
-        self.no_tree.initial_step.level = self.level + 1
         self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.yes_tree.generate_code()}'
-        self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
-        self.parent_tree.result_code = f'{self.parent_tree.result_code}else:'
-        self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.no_tree.generate_code()}'
+        if self.no_tree is not None:
+            self.no_tree.level = self.level + 1
+            self.no_tree.initial_step.level = self.level + 1
+            self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
+            self.parent_tree.result_code = f'{self.parent_tree.result_code}else:'
+            self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.no_tree.generate_code()}'
