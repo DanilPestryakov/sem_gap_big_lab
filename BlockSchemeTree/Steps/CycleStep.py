@@ -12,6 +12,8 @@ class CycleStep(BlockSchemeTree):
 
     def generate_code(self):
         self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.start_step_string}'
+        self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
         self.parent_tree.result_code = f'{self.parent_tree.result_code}while {self.condition_string}:'
         self.iterable_tree.level = self.level + 1
         self.iterable_tree.initial_step.level = self.level + 1
