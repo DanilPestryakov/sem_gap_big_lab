@@ -38,12 +38,13 @@ config = r'--oem 3 --psm 6'
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 # set an image
-image_original = 'im001.png'
+image_original = 'im004.png'
 image = image_original  # can be filepath, PIL image or numpy array
 pattern = re.search('(.+?).png', image).group(1)
 output_text = 'output_text.txt'
 output_figure = 'output_figure.txt'
 edges_image = 'edges.png'
+image_no_text = 'no_text.png'
 
 # Create all paths needed
 # path to automatically detected Craft text pieces
@@ -159,13 +160,14 @@ erosion = cv2.erode(dilation, kernel, iterations=2)
 # cv.imshow('erosion', erosion)
 
 img = cv2.bitwise_not(erosion)
-# cv2.imshow("invert 2", img)
+cv2.imwrite(image_no_text, img)
+
 print("Done")
 
 # Detect figures
 
 print('Start detect figures from image')
-partimg = deepcopy(img)
+# partimg = deepcopy(img)
 
 height, width, _ = img.shape
 image_size = height * width
@@ -176,7 +178,7 @@ contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_
 
 figure_coords = np.empty((1, 8))
 
-image = Image.open(image_original)
+image = Image.open(image_no_text)
 draw = ImageDraw.Draw(image)
 
 f = open("output_figure_box.txt", "w+") # file to write final coordinates of figures
@@ -281,6 +283,51 @@ with open(output_figure, 'w+') as f: # file to write scheme figures
                 figure_name = 'Circle'
 
         f.write(figure_name)
+        f.write('\n')
+
+print("Done")
+
+print('Start detect lines from image')
+# Read image
+image = cv2.imread(edges_image)
+
+# Convert image to grayscale
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Use canny edge detection
+edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+
+# Apply HoughLinesP method to
+# to directly obtain line end points
+lines_list = []
+lines = cv2.HoughLinesP(
+    edges,  # Input edge image
+    1,  # Distance resolution in pixels
+    np.pi / 180,  # Angle resolution in radians
+    threshold=20,  # Min number of votes for valid line
+    minLineLength=15,  # Min allowed length of line
+    maxLineGap=10  # Max allowed gap between line for joining them
+)
+
+# Iterate over points
+for points in lines:
+    # Extracted points nested in the list
+    x1, y1, x2, y2 = points[0]
+    # Draw the lines joining the points
+    # On the original image
+    cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    # Maintain a simples lookup list for points
+    lines_list.append([x1, y1, x2, y2])
+
+# Save the result image
+# cv2.imshow('edges', image)
+# cv2.imwrite('detectedLines.png', image)
+
+str3 = " "
+with open("output_lines_box.txt", "w+") as f:
+    for line in lines_list:
+        line_coords = [str(i) for i in line]
+        f.write(str3.join(line_coords))
         f.write('\n')
 
 print("Done")
