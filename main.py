@@ -94,7 +94,7 @@ with open(text_coords_dir) as f:
     lines = [line.rstrip() for line in f]
 
 # extending text boundboxes boundaries for 1% (coordinates manipulation)
-f = open("output_text_box.txt", "w") # file to write final coordinates of the text
+f = open("output_text_box.txt", "w+") # file to write final coordinates of the text
 i = 0
 text_coords = np.empty((1, 8))
 str1 = " "
@@ -124,7 +124,7 @@ for text in all_text_files:
 
 print('Start recognize text from image')
 
-with open(output_text, 'w') as f:
+with open(output_text, 'w+') as f:  # file to write scheme text
     for boundbox in all_boundboxes_text:
         img_crop = cv2.imread(boundbox)
         img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
@@ -174,10 +174,10 @@ contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_
 
 figure_coords = np.empty((1, 8))
 
-f = open("output_figure_box.txt", "w") # file to write final coordinates of the text
+f = open("output_figure_box.txt", "w+") # file to write final coordinates of figures
 str2 = " "
 j = 0
-# cv2.imshow('Inpainted image 1', img_inpainted)
+
 # iterate all contours found cycle
 # extend figure boundbox to 3%
 for cnt in contours0:
@@ -217,7 +217,7 @@ all_figure_files = os.listdir(figures_dir)
 for figure in all_figure_files:
     all_boundboxes_figures.append(os.path.join(figures_dir, figure))
 
-with open(output_figure, 'w') as f:
+with open(output_figure, 'w+') as f: # file to write scheme figures
     for boundbox in all_boundboxes_figures:
 
         # reading image
