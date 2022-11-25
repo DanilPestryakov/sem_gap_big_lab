@@ -38,10 +38,12 @@ config = r'--oem 3 --psm 6'
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
 # set an image
-image = 'im001.png'  # can be filepath, PIL image or numpy array
+image_original = 'im001.png'
+image = image_original  # can be filepath, PIL image or numpy array
 pattern = re.search('(.+?).png', image).group(1)
 output_text = 'output_text.txt'
 output_figure = 'output_figure.txt'
+edges_image = 'edges.png'
 
 # Create all paths needed
 # path to automatically detected Craft text pieces
@@ -174,6 +176,9 @@ contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_
 
 figure_coords = np.empty((1, 8))
 
+image = Image.open(image_original)
+draw = ImageDraw.Draw(image)
+
 f = open("output_figure_box.txt", "w+") # file to write final coordinates of figures
 str2 = " "
 j = 0
@@ -201,7 +206,8 @@ for cnt in contours0:
         path = os.path.join(figures_dir, cropname)
         j += 1
         cv2.imwrite(path, crop_image)
-
+        draw.polygon(((x_left, y_up), (x_right, y_up), (x_right, y_down), (x_left, y_down)), fill="white")
+        image.save(edges_image) # inpaint figures and save result (only edges)
         f.write(str2.join(figure_coords))
         f.write('\n')
 
@@ -278,17 +284,3 @@ with open(output_figure, 'w+') as f: # file to write scheme figures
         f.write('\n')
 
 print("Done")
-
-# TODO inpaint figures
-# Delete figures
-image = Image.open('im001.png')
-draw = ImageDraw.Draw(image)
-draw.polygon(((x0, y0), (x1, y1), (x2, y2), (x3, y3)), fill="white")
-image.save('result.png')
-
-# cv2.imshow('Inpainted image 2', img_inpainted)  # draw result image
-
-# cv2.imshow('contours', img)  # draw result image
-
-# Recognize figures
-print('Start recognize figures from image')
