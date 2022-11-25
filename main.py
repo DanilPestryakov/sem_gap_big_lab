@@ -41,6 +41,7 @@ pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesserac
 image = 'im001.png'  # can be filepath, PIL image or numpy array
 pattern = re.search('(.+?).png', image).group(1)
 output_text = 'output_text.txt'
+output_figure = 'output_figure.txt'
 
 # Create all paths needed
 # path to automatically detected Craft text pieces
@@ -116,15 +117,15 @@ for line in lines:
 f.close()
 
 # list to store text extended boundboxes
-all_boundboxes = []
+all_boundboxes_text = []
 all_text_files = os.listdir(expanded_text_dir)
 for text in all_text_files:
-    all_boundboxes.append(os.path.join(expanded_text_dir, text))
+    all_boundboxes_text.append(os.path.join(expanded_text_dir, text))
 
 print('Start recognize text from image')
 
 with open(output_text, 'w') as f:
-    for boundbox in all_boundboxes:
+    for boundbox in all_boundboxes_text:
         img_crop = cv2.imread(boundbox)
         img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
         f.write(pytesseract.image_to_string(img_rgb, config=config))
@@ -160,7 +161,6 @@ img = cv2.bitwise_not(erosion)
 print("Done")
 
 # Detect figures
-# TODO figures boundboxes and figures recognition
 
 print('Start detect figures from image')
 partimg = deepcopy(img)
@@ -179,6 +179,7 @@ str2 = " "
 j = 0
 # cv2.imshow('Inpainted image 1', img_inpainted)
 # iterate all contours found cycle
+# extend figure boundbox to 3%
 for cnt in contours0:
     rect = cv2.minAreaRect(cnt)  # try to emplace rectangle
     box = cv2.boxPoints(rect)  # find 4 rectangle coordinates
@@ -186,16 +187,16 @@ for cnt in contours0:
     area = int(rect[1][0] * rect[1][1])  # calculate area
     # if area > 0.001*image_size and area < 0.1*image_size:
     if area > 5000 and area < 20000:
-        cv2.drawContours(img, [box], -1, (255, 0, 0), 5)  # draw rectangle
+        # cv2.drawContours(img, [box], -1, (255, 0, 0), 5)  # draw rectangle
         x0, x1, x2, x3 = box[:, 0]
         y0, y1, y2, y3 = box[:, 1]
-        figure_coords = int(x0*0.98), int(y0*0.98), int(x1*1.02), int(y1*0.98), int(x2*1.02), int(y2*1.02), int(x3*0.98), int(y3*1.02)
-#        figure_coords = x0, y0, x1, y1, x2, y2, x3, y3
-        x0, y0, x1, y1, x2, y2, x3, y3 = figure_coords
+        y_up = int(y1*0.97)
+        y_down = int(y3*1.03)
+        x_left = int(x0*0.97)
+        x_right = int(x2*1.03)
+        figure_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
         figure_coords = [str(i) for i in figure_coords]
-        print(box)
-        print(figure_coords)
-        crop_image = img[y0:y2, x0:x1]
+        crop_image = img[y_up:y_down, x_left:x_right]
         cropname = 'crop_' + str(j) + '.png'
         path = os.path.join(figures_dir, cropname)
         j += 1
@@ -210,7 +211,71 @@ print("Done")
 
 print('Start recognize figures from image')
 
+# list to store text extended boundboxes
+all_boundboxes_figures = []
+all_figure_files = os.listdir(figures_dir)
+for figure in all_figure_files:
+    all_boundboxes_figures.append(os.path.join(figures_dir, figure))
 
+with open(output_figure, 'w') as f:
+    for boundbox in all_boundboxes_figures:
+
+        # reading image
+        img1 = cv2.imread(boundbox)
+        # making border around image using copyMakeBorder
+        img = cv2.copyMakeBorder(img1, 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 255, 255])
+        # converting image into grayscale image
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # setting threshold of gray image
+        _, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+        # using a findContours() function
+        contours, _ = cv2.findContours(
+            threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        # print(len(contours))
+        i = 0
+        # list for storing names of shapes
+        for contour in contours:
+            # here we are ignoring first counter because
+            # findcontour function detects whole image as shape
+            if i == 0:
+                i = 1
+                continue
+            # cv2.approxPloyDP() function to approximate the shape
+            approx = cv2.approxPolyDP(
+                contour, 0.01 * cv2.arcLength(contour, True), True)
+            area = cv2.contourArea(contour)
+
+            # cv2.drawContours(img, [contour], 0, (0, 0, 255), 2)
+
+            # finding center point of shape
+            M = cv2.moments(contour)
+            if M['m00'] != 0.0:
+                x = int(M['m10'] / (M['m00'] + 1e-8))
+                y = int(M['m01'] / (M['m00']) + 1e-8)
+
+            if len(approx) == 4:
+                cv2.putText(img, 'Quadrilateral', (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                figure_name = 'Quadrilateral'
+
+            elif len(approx) == 5:
+                cv2.putText(img, 'Pentagon', (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                figure_name = 'Pentagon'
+
+            elif len(approx) == 6:
+                cv2.putText(img, 'Hexagon', (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                figure_name = 'Hexagon'
+
+            else:
+                cv2.putText(img, 'Circle', (x, y),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+                figure_name = 'Circle'
+
+        f.write(figure_name)
+        f.write('\n')
 
 print("Done")
 
@@ -227,99 +292,3 @@ image.save('result.png')
 
 # Recognize figures
 print('Start recognize figures from image')
-
-
-
-cv2.waitKey(0)
-
-# closing all open windows
-cv2.destroyAllWindows()
-
-"""
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
-
-# reading image
-img1 = cv2.imread('crop_img_9.png')
-
-# making border around image using copyMakeBorder
-img = cv2.copyMakeBorder(img1, 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-
-
-# showing the image with border
-#cv2.imwrite('output.png', borderoutput)
-
-
-# converting image into grayscale image
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# setting threshold of gray image
-_, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-
-# using a findContours() function
-contours, _ = cv2.findContours(
-    threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-# print(len(contours))
-
-i = 0
-
-# list for storing names of shapes
-for contour in contours:
-
-    # here we are ignoring first counter because
-    # findcontour function detects whole image as shape
-    if i == 0:
-        i = 1
-        continue
-
-    # cv2.approxPloyDP() function to approximate the shape
-    approx = cv2.approxPolyDP(
-        contour, 0.01 * cv2.arcLength(contour, True), True)
-
-    area = cv2.contourArea(contour)
-#    print('area =', area)
-
-    # using drawContours() function
- #   if 300 < area < 400:
- #       cv2.drawContours(img, [contour], 0, (0, 0, 255), 2)
- #       print('approx =', len(approx))
-
-    cv2.drawContours(img, [contour], 0, (0, 0, 255), 2)
-
-    # finding center point of shape
-    M = cv2.moments(contour)
-    if M['m00'] != 0.0:
-        x = int(M['m10'] / (M['m00']+1e-8))
-        y = int(M['m01'] / (M['m00'])+1e-8)
-
-    if len(approx) == 4:
-        cv2.putText(img, 'Quadrilateral', (x, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-        figure_name = 'Quadrilateral'
-
-    elif len(approx) == 5:
-        cv2.putText(img, 'Pentagon', (x, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-        figure_name = 'Pentagon'
-
-    elif len(approx) == 6:
-        cv2.putText(img, 'Hexagon', (x, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-        figure_name = 'Hexagon'
-
-    else:
-        cv2.putText(img, 'Circle', (x, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-        figure_name = 'Circle'
-
-print("Finally:")
-print(figure_name)
-
-# displaying the image after drawing contours
-cv2.imshow('shapes', img)
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-"""
