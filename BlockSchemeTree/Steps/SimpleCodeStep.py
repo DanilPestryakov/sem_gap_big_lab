@@ -1,5 +1,5 @@
 from ..BlockSchemeTree import BlockSchemeTree
-from .StepsTypeEnum import StepsTypesEnum
+from ..StepsTypeEnum import StepsTypesEnum
 
 
 class SimpleCodeStep(BlockSchemeTree):

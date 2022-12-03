@@ -127,11 +127,11 @@ for text in all_text_files:
 
 print('Start recognize text from image')
 
-with open(output_text, 'w+') as f:  # file to write scheme text
-    for boundbox in all_boundboxes_text:
-        img_crop = cv2.imread(boundbox)
-        img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
-        f.write(pytesseract.image_to_string(img_rgb, config=config))
+# with open(output_text, 'w+') as f:  # file to write scheme text
+#     for boundbox in all_boundboxes_text:
+#         img_crop = cv2.imread(boundbox)
+#         img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
+#         f.write(pytesseract.image_to_string(img_rgb, config=config))
 
 print("Done")
 
@@ -320,8 +320,8 @@ for points in lines:
     lines_list.append([x1, y1, x2, y2])
 
 # Save the result image
-# cv2.imshow('edges', image)
-# cv2.imwrite('detectedLines.png', image)
+cv2.imshow('edges', image)
+cv2.imwrite('detectedLines.png', image)
 
 str3 = " "
 with open("output_lines_box.txt", "w+") as f:
