@@ -1,17 +1,18 @@
 from ..BlockSchemeTree import BlockSchemeTree
 from ..StepsTypeEnum import StepsTypesEnum
 
-class ConditionStep(BlockSchemeTree):
-    def __init__(self, condition_string, yes_tree, no_tree, prev_step, parent_tree):
-        """
-        Create a drawing instance.
 
-        :param im: The image to draw in.
-        :param mode: Optional mode to use for color values.  For RGB
-                   images, this argument can be RGB or RGBA (to blend the
-                   drawing into the image).  For all other modes, this argument
-                   must be the same as the image mode.  If omitted, the mode
-                   defaults to the mode of the image.
+class ConditionStep(BlockSchemeTree):
+    def __init__(self, condition_string: str, yes_tree: BlockSchemeTree, no_tree: BlockSchemeTree,
+                 prev_step: BlockSchemeTree, parent_tree: BlockSchemeTree):
+        """
+        Create instance for block scheme tree representation of condition step in block scheme instance.
+
+        :param condition_string: string with condition
+        :param yes_tree: block scheme tree related for yes step
+        :param no_tree: block scheme tree related for yes step
+        :param prev_step: previous step of block scheme
+        :param parent_tree: parent tree for this node
         """
         super().__init__(prev_step, parent_tree, StepsTypesEnum.FuncStep)
         self.condition_string = condition_string
@@ -22,19 +23,19 @@ class ConditionStep(BlockSchemeTree):
 
     def generate_code(self):
         """
-            Gets the "base" mode for given mode.  This function returns "L" for
-            images that contain grayscale data, and "RGB" for images that
-            contain color data.
-
-        :param mode: Input mode.
-        :returns: "L" or "RGB".
-        :exception KeyError: If the input mode was not a standard mode.
+        Recursive generation of code for this step
         """
+
+        # set tabulation
         self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
+        # set string with condition
         self.parent_tree.result_code = f'{self.parent_tree.result_code}if {self.condition_string}:'
+        # set level + 1 for tabulation for tree related yes step
         self.yes_tree.level = self.level + 1
         self.yes_tree.initial_step.level = self.level + 1
+        # recursive generation of code for yes tree
         self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.yes_tree.generate_code()}'
+        # also do same for no tree if no tree represented
         if self.no_tree is not None:
             self.no_tree.level = self.level + 1
             self.no_tree.initial_step.level = self.level + 1

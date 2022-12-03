@@ -4,6 +4,13 @@ from ..StepsTypeEnum import StepsTypesEnum
 
 class SimpleCodeStep(BlockSchemeTree):
     def __init__(self, code_str, prev_step, parent_tree):
+        """
+                Create instance for block scheme tree representation of condition step in block scheme instance.
+
+                :param prev_step: previous step of block scheme
+                :param parent_tree: parent tree for this node
+                :param step_type: type of current step in Block
+                """
         super().__init__(prev_step, parent_tree, StepsTypesEnum.SimpleCodeStep)
         self.code_str = code_str
         self.parent_tree = parent_tree

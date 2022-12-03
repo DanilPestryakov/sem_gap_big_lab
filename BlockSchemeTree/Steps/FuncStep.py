@@ -4,6 +4,13 @@ from ..StepsTypeEnum import StepsTypesEnum
 
 class FuncStep(BlockSchemeTree):
     def __init__(self, func_name, args_string, prev_step, parent_tree):
+        """
+                Create instance for block scheme tree representation of condition step in block scheme instance.
+
+                :param prev_step: previous step of block scheme
+                :param parent_tree: parent tree for this node
+                :param step_type: type of current step in Block
+                """
         super().__init__(prev_step, parent_tree, StepsTypesEnum.FuncStep)
         self.func_name = func_name
         self.args_string = args_string
