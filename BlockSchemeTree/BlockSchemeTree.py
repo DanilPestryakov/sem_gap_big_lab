@@ -1,10 +1,11 @@
-import BlockSchemeTree
+from __future__ import annotations
+
 from .StepsTypeEnum import StepsTypesEnum
 
 
 class BlockSchemeTree:
     def __init__(self, prev_step: BlockSchemeTree = None, parent_tree: BlockSchemeTree = None,
-                 step_type: StepsTypesEnum = None) -> BlockSchemeTree:
+                 step_type: StepsTypesEnum = None):
         """
         Create a block scheme representation tree structure instance.
 
