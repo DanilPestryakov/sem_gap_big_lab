@@ -13,6 +13,11 @@ def midpoint(x1, y1, x2, y2):
     y_mid = int((y1 + y2)/2)
     return (x_mid, y_mid)
 
+def masscenter(x0, y0, x1, y2):
+    center_x = int((x0 + x1)/2)
+    center_y = int((y0 + y2)/2)
+    return (center_x, center_y)
+
 def InpaintText(numbs, image):
     x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in numbs]
     x_mid0, y_mid0 = midpoint(x1, y1, x2, y2)
@@ -257,7 +262,6 @@ def RecognizeLines(edges, output_lines_box, edges_image):
         minLineLength=15,  # Min allowed length of line
         maxLineGap=10  # Max allowed gap between line for joining them
     )
-
     # Iterate over points
     for points in lines:
         # Extracted points nested in the list
@@ -268,9 +272,8 @@ def RecognizeLines(edges, output_lines_box, edges_image):
         # Maintain a simples lookup list for points
         lines_list.append([x1, y1, x2, y2])
 
-    # Save the result image
-    # cv2.imshow('edges', image)
-    cv2.imwrite(edges_image, image)
+    # Show the result image
+#    cv2.imshow('edges', image)
 
     str3 = " "
     with open(output_lines_box, "w+") as f:
@@ -280,3 +283,57 @@ def RecognizeLines(edges, output_lines_box, edges_image):
             f.write('\n')
 
     print("Lines recognized")
+
+def LinesPoints(output_lines_box, output_lines_point):
+
+    EPS = 3  # accuracy of assuming line horizontal/vertical (in pixels)
+    EPS_POINT = 20  # accuracy of side line entrance to main line
+
+    # read lines points coordinates
+    f = open(output_lines_box)
+    Horizontal = []
+    Vertical = []
+    lines = f.readlines()
+    for line in lines:
+        x0, y0, x1, y1 = list(map(lambda x: int(x), line.split()))
+        if abs(x0 - x1) < EPS:
+            Vertical.append(list([x0, y0, x1, y1]))
+        else:
+            Horizontal.append(list([x0, y0, x1, y1]))
+    f.close()
+
+    # sort lines orientation
+    # x: left - right point
+    # y: up - down point
+    for i in range(len(Vertical)):
+        x0, y0, x1, y1 = Vertical[i]
+        if y0 > y1:
+            Vertical[i] = list([x1, y1, x0, y0])
+
+    for i in range(len(Horizontal)):
+        x0, y0, x1, y1 = Horizontal[i]
+        if x0 > x1:
+            Horizontal[i] = list([x1, y1, x0, y0])
+
+    with open(output_lines_point, 'w+') as f:
+        for line_vert in Vertical:
+            x0_v, y0_v, x1_v, y1_v = line_vert
+            for line_horiz in Horizontal:
+                x0_h, y0_h, x1_h, y1_h = line_horiz
+                if (abs(x0_h - x0_v) < EPS_POINT) and (y0_v < y0_h < y1_v):
+                    point_coords = str(x0_v) + " " + str(y0_h)
+                    f.write(point_coords)
+                    f.write('\n')
+
+def BoxPoints(output_figure_box, output_figures_point):
+    fr = open(output_figure_box)
+    fw = open(output_figures_point, "w+")
+    lines = fr.readlines()
+    for line in lines:
+        x0, y0, x1, y1, x2, y2, x3, y3 = list(map(lambda x: int(x), line.split()))
+        xc, yc = masscenter(x0, y0, x1, y2)
+        point_coords = str(xc) + " " + str(yc)
+        fw.write(point_coords)
+        fw.write('\n')
+    fr.close()
+    fw.close()

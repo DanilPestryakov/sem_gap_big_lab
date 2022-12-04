@@ -10,10 +10,13 @@ text_coords_file = os.path.join('auto_text', pattern + '_text_detection.txt')
 
 output_text = 'output_text.txt'
 output_figure = 'output_figure.txt'
-image_no_text = 'no_text.png'
 output_text_box = 'output_text_box.txt'
 output_figure_box = 'output_figure_box.txt'
 output_lines_box = 'output_lines_box.txt'
+output_lines_point = 'output_lines_point.txt'
+output_figures_point = 'output_figures_point.txt'
+output_text_point = 'output_text_point.txt'
+image_no_text = 'no_text.png'
 edges_image = 'edges.png'
 
 DetectText(auto_text_dir, image)
@@ -33,5 +36,9 @@ CleanImageFromFigures(image_no_text, output_figure_box, edges_image)
 edges = DetectLines(edges_image)
 RecognizeLines(edges, output_lines_box, edges_image)
 
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+LinesPoints(output_lines_box, output_lines_point)
+BoxPoints(output_figure_box, output_figures_point)
+BoxPoints(output_text_box, output_text_point)
+
+cv2.waitKey()
+cv2.destroyAllWindows()
