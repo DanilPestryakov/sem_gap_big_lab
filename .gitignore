@@ -1,2 +1,6 @@
 .idea
 venv
+/__pycache__
+/auto_text
+/corrected_text
+/corrected_figures
