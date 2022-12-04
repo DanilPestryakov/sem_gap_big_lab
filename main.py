@@ -1,5 +1,6 @@
 from set_config import *
 from imageHandler import *
+from DataStructure import *
 import re
 
 # set an image
@@ -39,6 +40,16 @@ RecognizeLines(edges, output_lines_box, edges_image)
 LinesPoints(output_lines_box, output_lines_point)
 BoxPoints(output_figure_box, output_figures_point)
 BoxPoints(output_text_box, output_text_point)
+
+TextElements = ConnectElementsAndBoxes(output_text, output_text_box, output_text_point)
+FigureElements = ConnectElementsAndBoxes(output_figure, output_figure_box, output_figures_point)
+
+# print(TextElements)
+# print(FigureElements)
+
+OutputData = DataStructure(FigureElements, TextElements)
+
+# print(OutputData)
 
 cv2.waitKey()
 cv2.destroyAllWindows()
