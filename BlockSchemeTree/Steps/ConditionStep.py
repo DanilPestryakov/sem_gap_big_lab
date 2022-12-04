@@ -1,10 +1,13 @@
+from typing import Optional
+
 from ..BlockSchemeTree import BlockSchemeTree
 from ..StepsTypeEnum import StepsTypesEnum
 
 
 class ConditionStep(BlockSchemeTree):
-    def __init__(self, condition_string: str, yes_tree: BlockSchemeTree, no_tree: BlockSchemeTree,
-                 prev_step: BlockSchemeTree, parent_tree: BlockSchemeTree):
+    def __init__(self, condition_string: str, yes_tree: BlockSchemeTree,
+                 no_tree: Optional[BlockSchemeTree], prev_step: BlockSchemeTree,
+                 parent_tree: BlockSchemeTree):
         """
         Create instance for block scheme tree representation of condition step in block scheme instance.
 
@@ -14,12 +17,13 @@ class ConditionStep(BlockSchemeTree):
         :param prev_step: previous step of block scheme
         :param parent_tree: parent tree for this node
         """
-        super().__init__(prev_step, parent_tree, StepsTypesEnum.FuncStep)
+        super().__init__(prev_step, parent_tree, StepsTypesEnum.ConditionStep)
         self.condition_string = condition_string
         self.yes_tree = yes_tree
         self.yes_tree.prev_step = self
         self.no_tree = no_tree
-        self.no_tree.prev_step = self
+        if self.no_tree is not None:
+            self.no_tree.prev_step = self
 
     def generate_code(self):
         """
