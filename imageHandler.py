@@ -361,7 +361,7 @@ def LinesPoints(output_lines_box, output_lines_point):
     with open(output_lines_point, 'w+') as f:
         for elem in points_list:
             x, y = elem
-            point_coords = str(x0_v) + " " + str(y0_h)
+            point_coords = str(x) + " " + str(y)
             f.write(point_coords)
             f.write('\n')
 

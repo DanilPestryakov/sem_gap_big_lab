@@ -47,7 +47,7 @@ FigureElements = ConnectElementsAndBoxes(output_figure, output_figure_box, outpu
 # print(TextElements)
 # print(FigureElements)
 
-OutputData = DataStructure(FigureElements, TextElements)
+OutputData = DataStructure(FigureElements, TextElements, output_lines_point)
 
 # print(OutputData)
 
