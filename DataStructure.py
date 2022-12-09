@@ -1,4 +1,4 @@
-
+import math
 def ConnectElementsAndBoxes(text_file, box_file, coord_file):
     SchemeElements = []
     ft = open(text_file)
@@ -19,9 +19,21 @@ def ConnectElementsAndBoxes(text_file, box_file, coord_file):
 
 def DataStructure(Figure, Text):
 
+    EPS_DIST = 10
+
     newlist = sorted(Figure, key=lambda i: i['coord'][1], reverse=False)
-#    print(newlist)
-    circle = [d for d in newlist if d['text'] == 'Circle']
-#    print(circle)
+
+    list1 = []  # filtered from circles (program begin/end)
+    circle = [d if d['text'] == 'Circle' else list1.append(d) for d in newlist]
+    circle = list(filter(lambda item: item is not None, circle))
+
     newlist_circle = sorted(circle, key=lambda i: i['coord'][1], reverse=False)
-#    print(newlist_circle)
+    program_begin = newlist_circle[0]
+    program_end = newlist_circle[1]
+
+    list2 = []  # filtered from program arguments figure
+    arguments = [d if d['text'] == 'Quadrilateral' and
+                 math.pow(d['coord'][1] - program_begin['coord'][1], 2) < EPS_DIST else list2.append(d) for d in list1]
+    arguments = list(filter(lambda item: item is not None, arguments))
+    print(arguments)
+    print(list2)

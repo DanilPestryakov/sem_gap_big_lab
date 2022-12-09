@@ -335,15 +335,35 @@ def LinesPoints(output_lines_box, output_lines_point):
         if x0 > x1:
             Horizontal[i] = list([x1, y1, x0, y0])
 
+    points_lst = []
+
+    for line_vert in Vertical:
+        x0_v, y0_v, x1_v, y1_v = line_vert
+        for line_horiz in Horizontal:
+            x0_h, y0_h, x1_h, y1_h = line_horiz
+            if (abs(x0_h - x0_v) < EPS_POINT) and (y0_v < y0_h < y1_v):
+                points_lst.append([x0_v, y0_h])
+
+    points_list = sorted(points_lst)
+    bad_indexes = []
+    for i in range(len(points_list)):
+        for j in range(len(points_list)):
+            dist = math.sqrt( pow(points_list[i][0] - points_list[j][0], 2) + pow(points_list[i][1] - points_list[j][1], 2) )
+            if dist < EPS_POINT:
+                bad_indexes.append(j)
+
+    bad_indexes = list(set(bad_indexes))
+    bad_indexes_less = bad_indexes[::2]
+
+    for i in range(len(bad_indexes_less)):
+        del(points_list[bad_indexes_less[i]])
+
     with open(output_lines_point, 'w+') as f:
-        for line_vert in Vertical:
-            x0_v, y0_v, x1_v, y1_v = line_vert
-            for line_horiz in Horizontal:
-                x0_h, y0_h, x1_h, y1_h = line_horiz
-                if (abs(x0_h - x0_v) < EPS_POINT) and (y0_v < y0_h < y1_v):
-                    point_coords = str(x0_v) + " " + str(y0_h)
-                    f.write(point_coords)
-                    f.write('\n')
+        for elem in points_list:
+            x, y = elem
+            point_coords = str(x0_v) + " " + str(y0_h)
+            f.write(point_coords)
+            f.write('\n')
 
 def BoxPoints(output_figure_box, output_figures_point):
     fr = open(output_figure_box)
