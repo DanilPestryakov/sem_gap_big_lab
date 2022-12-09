@@ -90,6 +90,39 @@ def DataStructure(Figure, Text, output_lines_point):
 #    print('program_end', program_end)
 #    print('hexagon', hexagon)
 
+    for elem in bst_tree:
+        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+        for code in Text:
+            x, y = code['coord']
+            if (x0 < x < x1) and (y0 < y < y2):
+                elem['code'] = code['text']
+
+    for elem in yes_trees:
+        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+        for code in Text:
+            x, y = code['coord']
+            if (x0 < x < x1) and (y0 < y < y2):
+                elem['code'] = code['text']
+
+    for elem in no_trees:
+        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+        for code in Text:
+            x, y = code['coord']
+            if (x0 < x < x1) and (y0 < y < y2):
+                elem['code'] = code['text']
+
+    for elem in arguments:
+        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+        elem['code'] = []
+        for code in Text:
+            x, y = code['coord']
+            if (x0 < x < x1) and (y0 < y < y2):
+                elem['code'].append(code['text'])
+
+
+    print('arguments:\n', arguments)
     print('bst_tree:\n', bst_tree)
     print('yes_trees:\n', yes_trees)
     print('no_trees:\n',no_trees)
+
+    # print('Text', Text)
