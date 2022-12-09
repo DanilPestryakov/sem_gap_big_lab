@@ -4,7 +4,7 @@ from DataStructure import *
 import re
 
 # set an image
-image = 'im004.png'  # can be filepath, PIL image or numpy array
+image = 'im010.png'  # can be filepath, PIL image or numpy array
 # path to file with text boundboxes coordinates
 pattern = re.search('(.+?).png', image).group(1)
 text_coords_file = os.path.join('auto_text', pattern + '_text_detection.txt')

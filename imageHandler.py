@@ -19,7 +19,7 @@ def masscenter(x0, y0, x1, y2):
     return (center_x, center_y)
 
 def InpaintText(numbs, image):
-    x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in numbs]
+    x0, y0, x1, y1, x2, y2, x3, y3, *other = [float(i) for i in numbs]
     x_mid0, y_mid0 = midpoint(x1, y1, x2, y2)
     x_mid1, y_mid1 = midpoint(x0, y0, x3, y3)
     thickness = int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
@@ -27,6 +27,21 @@ def InpaintText(numbs, image):
     cv2.line(mask, (x_mid0, y_mid0), (x_mid1, y_mid1), 255, thickness)
     img_inpainted = cv2.inpaint(image, mask, 7, cv2.INPAINT_NS)
     return img_inpainted
+
+def IdentifyHexagon(vertexes):
+    lengths = []
+    EPS_HEX = 4
+    # vertexes.shape (6, 1, 2)
+    for i in range(len(vertexes)-1):
+        x0, y0, x1, y1 = vertexes[i][0][0], vertexes[i][0][1], vertexes[i+1][0][0], vertexes[i+1][0][1]
+        lengths.append(math.sqrt((x1 - x0)*(x1 - x0) + (y1 - y0)*(y1 - y0)))
+    x0, y0, x1, y1 = vertexes[0][0][0], vertexes[0][0][1], vertexes[len(vertexes)-1][0][0], vertexes[len(vertexes)-1][0][1]
+    lengths.append(math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)))
+    lengths.sort()
+    if abs(lengths[-1] - lengths[-2]) < EPS_HEX:
+        return "HexagonCondition"
+    else:
+        return "HexagonCycle"
 
 def DetectText(auto_text_dir, image):
     # create a craft instance
@@ -91,7 +106,7 @@ def CleanImageFromText(lines, image):
     img_inpainted = deepcopy(image)
     for line in lines:
         if line:
-            numbs = line.split(',')
+            numbs = line.strip().split(',')
             img_inpainted = InpaintText(numbs, img_inpainted)
 
     # cv2.imshow('Inpainted image', img_inpainted)
@@ -227,7 +242,12 @@ def RecognizeFigures(figures_dir, output_figure):
                 elif len(approx) == 6:
                     cv2.putText(img, 'Hexagon', (x, y),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-                    figure_name = 'Hexagon'
+
+                    figure_name = IdentifyHexagon(approx)
+                    # figure_name = 'Hexagon'
+
+                    # print('approx = ', approx)
+                    # cv2.imwrite('hexa.png', img)
 
                 else:
                     cv2.putText(img, 'Circle', (x, y),
@@ -273,7 +293,7 @@ def RecognizeLines(edges, output_lines_box, edges_image):
         lines_list.append([x1, y1, x2, y2])
 
     # Show the result image
-#    cv2.imshow('edges', image)
+    cv2.imshow('edges', image)
 
     str3 = " "
     with open(output_lines_box, "w+") as f:

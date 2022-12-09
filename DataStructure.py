@@ -20,8 +20,8 @@ def ConnectElementsAndBoxes(text_file, box_file, coord_file):
 def DataStructure(Figure, Text):
 
     newlist = sorted(Figure, key=lambda i: i['coord'][1], reverse=False)
-    print(newlist)
+#    print(newlist)
     circle = [d for d in newlist if d['text'] == 'Circle']
-    print(circle)
+#    print(circle)
     newlist_circle = sorted(circle, key=lambda i: i['coord'][1], reverse=False)
-    print(newlist_circle)
+#    print(newlist_circle)
