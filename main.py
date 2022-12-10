@@ -1,6 +1,7 @@
 from set_config import *
 from imageHandler import *
 from DataStructure import *
+from BST_examples import DataStructureExample
 import re
 
 # set an image
@@ -47,7 +48,14 @@ FigureElements = ConnectElementsAndBoxes(output_figure, output_figure_box, outpu
 # print(TextElements)
 # print(FigureElements)
 
-OutputData = DataStructure(FigureElements, TextElements, output_lines_point)
+arguments, BST_TREE, YES_TREES, NO_TREES = DataStructure(FigureElements, TextElements, output_lines_point)
+
+print('arguments:\n', arguments)
+print('BST_TREE:\n', BST_TREE)
+print('YES_TREES:\n', YES_TREES)
+print('NO_TREES:\n', NO_TREES)
+
+DataStructureExample(arguments, BST_TREE, YES_TREES, NO_TREES)
 
 # print(OutputData)
 

@@ -1,4 +1,25 @@
 import math
+
+def ApplyTextToFigures(Trees, text):
+
+    for tree in Trees:
+        for elem in tree:
+            x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+            for code in text:
+                x, y = code['coord']
+                if (x0 < x < x1) and (y0 < y < y2):
+                    elem['code'] = code['text']
+
+def ApplyTextToFiguresArguments(arg, text):
+
+    for elem in arg:
+        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
+        elem['code'] = []
+        for code in text:
+            x, y = code['coord']
+            if (x0 < x < x1) and (y0 < y < y2):
+                elem['code'].append(code['text'])
+
 def ConnectElementsAndBoxes(text_file, box_file, coord_file):
     SchemeElements = []
     ft = open(text_file)
@@ -9,7 +30,7 @@ def ConnectElementsAndBoxes(text_file, box_file, coord_file):
     coord = fc.readlines()
 
     for i in range(len(text)):
-        SchemeElements.append({"text": text[i].strip(), "box": box[i].strip(), "coord": coord[i].strip(), "tree": None})
+        SchemeElements.append({"text": text[i].strip(), "box": box[i].strip(), "coord": coord[i].strip(), "code": ''})
 
     for elem in SchemeElements:
         elem["box"] = list(map(lambda x: int(x), elem["box"].split()))
@@ -35,8 +56,6 @@ def DataStructure(Figure, Text, output_lines_point):
     arguments = [d if d['text'] == 'Quadrilateral' and
                  math.pow(d['coord'][1] - program_begin['coord'][1], 2) < EPS_DIST else list2.append(d) for d in list1]
     arguments = list(filter(lambda item: item is not None, arguments))
-#    print(arguments)
-#    print(list2)
 
     Points = []
     with open(output_lines_point) as f:
@@ -45,10 +64,8 @@ def DataStructure(Figure, Text, output_lines_point):
             x, y = list(map(lambda x: int(x), line.split()))
             Points.append([x, y])
 
-#    print(Points)
-
     hexagon = [d for d in list2 if d['text'] == 'HexagonCondition' or d['text'] == 'HexagonCycle']
-#    print(hexagon)
+    print("hexagon", hexagon)
 
 #    common_length_dist = len(list2)
 #    for i in range(common_length_dist):
@@ -62,67 +79,34 @@ def DataStructure(Figure, Text, output_lines_point):
     yes_trees_elems = []
     no_trees_elems = []
     bst_tree_elems = []
+    BST_TREE = []
+    YES_TREES = []
+    NO_TREES = []
 
-    for i in range(len(hexagon)):
-        yes_trees_elems.append(hexagon[i])
-        no_trees_elems.append(hexagon[i])
-        for elem in list2:
-            if hexagon[i]['coord'][1] < elem['coord'][1] < Points[i][1] and int(cond_levels[i]*0.9) < elem['coord'][0] < int(cond_levels[i]*1.1):
-                yes_trees_elems.append(elem)
-            elif hexagon[i]['coord'][1] < elem['coord'][1] < Points[i][1] and int(cond_levels[i]*1.1) < elem['coord'][0] < int(cond_levels[i]*4.0):
-                no_trees_elems.append(elem)
-            else:
-                bst_tree_elems.append(elem)
- #           yes_trees_elems.append(hexagon[i])
- #           no_trees_elems.append(hexagon[i])
+    if Points:
+        for i in range(len(hexagon)):
+            yes_trees_elems.append(hexagon[i])
+            no_trees_elems.append(hexagon[i])
+            for elem in list2:
+                if hexagon[i]['coord'][1] < elem['coord'][1] < Points[i][1] and int(cond_levels[i]*0.9) < elem['coord'][0] < int(cond_levels[i]*1.1):
+                    yes_trees_elems.append(elem)
+                elif hexagon[i]['coord'][1] < elem['coord'][1] < Points[i][1] and int(cond_levels[i]*1.1) < elem['coord'][0] < int(cond_levels[i]*4.0):
+                    no_trees_elems.append(elem)
+                else:
+                    bst_tree_elems.append(elem)
+            yes_trees = sorted(yes_trees_elems, key=lambda i: i['coord'][1], reverse=False)
+            no_trees = sorted(no_trees_elems, key=lambda i: i['coord'][1], reverse=False)
+            YES_TREES.append(yes_trees)
+            NO_TREES.append(no_trees)
 
-    bst_tree_all = bst_tree_elems
-    bst_tree_all.append(program_begin)
-    bst_tree_all.append(program_end)
-    # print('bst_tree_all', bst_tree_all)
+    bst_tree_elems.append(program_begin)
+    bst_tree_elems.append(program_end)
+    bst_tree = sorted(bst_tree_elems, key=lambda i: i['coord'][1], reverse=False)
+    BST_TREE.append(bst_tree)
 
-    bst_tree = sorted(bst_tree_all, key=lambda i: i['coord'][1], reverse=False)
-    yes_trees = sorted(yes_trees_elems, key=lambda i: i['coord'][1], reverse=False)
-    no_trees = sorted(no_trees_elems, key=lambda i: i['coord'][1], reverse=False)
+    ApplyTextToFigures(BST_TREE, Text)
+    ApplyTextToFigures(YES_TREES, Text)
+    ApplyTextToFigures(NO_TREES, Text)
+    ApplyTextToFiguresArguments(arguments, Text)
 
-#    print('bst_tree_elems', bst_tree_elems)
-#    print('program_begin', program_begin)
-#    print('program_end', program_end)
-#    print('hexagon', hexagon)
-
-    for elem in bst_tree:
-        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
-        for code in Text:
-            x, y = code['coord']
-            if (x0 < x < x1) and (y0 < y < y2):
-                elem['code'] = code['text']
-
-    for elem in yes_trees:
-        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
-        for code in Text:
-            x, y = code['coord']
-            if (x0 < x < x1) and (y0 < y < y2):
-                elem['code'] = code['text']
-
-    for elem in no_trees:
-        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
-        for code in Text:
-            x, y = code['coord']
-            if (x0 < x < x1) and (y0 < y < y2):
-                elem['code'] = code['text']
-
-    for elem in arguments:
-        x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
-        elem['code'] = []
-        for code in Text:
-            x, y = code['coord']
-            if (x0 < x < x1) and (y0 < y < y2):
-                elem['code'].append(code['text'])
-
-
-    print('arguments:\n', arguments)
-    print('bst_tree:\n', bst_tree)
-    print('yes_trees:\n', yes_trees)
-    print('no_trees:\n',no_trees)
-
-    # print('Text', Text)
+    return arguments, BST_TREE, YES_TREES, NO_TREES
