@@ -71,7 +71,27 @@ def example_cycle():
     print(bst.generate_code())
 
 
+def MyTest():
+    print(f"{'_' * 30}\nMy example")
+    bst = BlockSchemeTree()
+    maximum = FuncStep('JustSoTest', ['a', 'b'], bst, bst)
+    str_1_step = SimpleCodeStep('a = a', maximum, bst)
+    str_2_step = SimpleCodeStep('b = b',  str_1_step, bst)
+
+    yes_tree = BlockSchemeTree()
+    yes_step1 = SimpleCodeStep('yes = yes', yes_tree, yes_tree)
+    yes_step2 = SimpleCodeStep('yes!', yes_step1, yes_tree)
+
+    cond = ConditionStep('b > a', yes_tree, None, str_2_step, bst)
+    str_3_step = SimpleCodeStep('print(c)', cond, bst)
+
+    bst.set_initial_step(maximum)
+    yes_tree.set_initial_step(yes_step1)
+
+    print(bst.generate_code())
+
+
 if __name__ == "__main__":
-    examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle]
+    examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
     for example in examples:
         example()

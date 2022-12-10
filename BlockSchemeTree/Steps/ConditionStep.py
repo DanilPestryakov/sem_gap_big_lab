@@ -29,20 +29,19 @@ class ConditionStep(BlockSchemeTree):
         """
         Recursive generation of code for this step
         """
-
         # set tabulation
         self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
         # set string with condition
         self.parent_tree.result_code = f'{self.parent_tree.result_code}if {self.condition_string}:'
         # set level + 1 for tabulation for tree related yes step
         self.yes_tree.level = self.level + 1
-        self.yes_tree.initial_step.level = self.level + 1
+        BlockSchemeTree.increase_steps_level(self.yes_tree.initial_step, self.level + 1)
         # recursive generation of code for yes tree
         self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.yes_tree.generate_code()}'
         # also do same for no tree if no tree represented
         if self.no_tree is not None:
             self.no_tree.level = self.level + 1
-            self.no_tree.initial_step.level = self.level + 1
+            BlockSchemeTree.increase_steps_level(self.no_tree.initial_step, self.level + 1)
             self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * self.level
             self.parent_tree.result_code = f'{self.parent_tree.result_code}else:'
             self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.no_tree.generate_code()}'

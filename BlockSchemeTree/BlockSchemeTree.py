@@ -63,3 +63,13 @@ class BlockSchemeTree:
             return self.prev_step.level + 1
         else:
             return self.prev_step.level
+
+    @classmethod
+    def increase_steps_level(cls, first_step: BlockSchemeTree, new_level: int):
+        """
+        Increasing level of subtrees steps
+        """
+        cur_step = first_step
+        while cur_step is not None:
+            cur_step.level = new_level
+            cur_step = cur_step.next_step

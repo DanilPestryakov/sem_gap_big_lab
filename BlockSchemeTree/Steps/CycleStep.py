@@ -34,10 +34,10 @@ class CycleStep(BlockSchemeTree):
             self.parent_tree.result_code = f'{self.parent_tree.result_code}while {self.condition_string}:'
         # set level of tabulation for iterable tree
         self.iterable_tree.level = self.level + 1
-        self.iterable_tree.initial_step.level = self.level + 1
+        BlockSchemeTree.increase_steps_level(self.iterable_tree.initial_step, self.level + 1)
         # recursive generation of code for iterable tree
         self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.iterable_tree.generate_code()}'
         # generate code for handle condition variable
-        if self.iterator_string is not '':
+        if self.iterator_string != '':
             self.parent_tree.result_code = f'{self.parent_tree.result_code}\n' + '\t' * (self.level + 1)
             self.parent_tree.result_code = f'{self.parent_tree.result_code}{self.iterator_string}'
