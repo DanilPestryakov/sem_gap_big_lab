@@ -5,7 +5,7 @@ from BST_examples import DataStructureExample
 import re
 
 # set an image
-image = 'im007.png'  # can be filepath, PIL image or numpy array
+image = 'test1.png'  # can be filepath, PIL image or numpy array
 # path to file with text boundboxes coordinates
 pattern = re.search('(.+?).png', image).group(1)
 text_coords_file = os.path.join('auto_text', pattern + '_text_detection.txt')
