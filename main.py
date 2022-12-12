@@ -1,38 +1,23 @@
-from set_config import *
-from imageHandler import *
+from Config import *
+from ImageHandler import *
 from DataStructure import *
 from BST_examples import DataStructureExample
-import re
 
-# set an image
-image = 'test1.png'  # can be filepath, PIL image or numpy array
-# path to file with text boundboxes coordinates
-pattern = re.search('(.+?).png', image).group(1)
-text_coords_file = os.path.join('auto_text', pattern + '_text_detection.txt')
+im_handler = ImageHandler('./test_images/test1.png')
+im_handler.run_pipeline()
 
-output_text = 'output_text.txt'
-output_figure = 'output_figure.txt'
-output_text_box = 'output_text_box.txt'
-output_figure_box = 'output_figure_box.txt'
-output_lines_box = 'output_lines_box.txt'
-output_lines_point = 'output_lines_point.txt'
-output_figures_point = 'output_figures_point.txt'
-output_text_point = 'output_text_point.txt'
-image_no_text = 'no_text.png'
-edges_image = 'edges.png'
-
-DetectText(auto_text_dir, image)
+DetectText(Config.AUTO_TEXT_DIR, image)
 image = cv2.imread(image)
 lines = ReadTextBox(text_coords_file)
-all_boundboxes_text = ExpandTextBox(expanded_text_dir, output_text_box, lines, image)
+all_boundboxes_text = ExpandTextBox(Config.EXPANDED_TEXT_DIR, output_text_box, lines, image)
 
 RecognizeText(output_text, all_boundboxes_text)
 img_inpainted = CleanImageFromText(lines, image)
 img = MorphologicalEnclosing(img_inpainted, image_no_text)
 
-DetectFigures(img, figures_dir, output_figure_box)
+DetectFigures(img, Config.FIGURES_DIR, output_figure_box)
 
-RecognizeFigures(figures_dir, output_figure)
+RecognizeFigures(Config.FIGURES_DIR, output_figure)
 CleanImageFromFigures(image_no_text, output_figure_box, edges_image)
 
 edges = DetectLines(edges_image)
