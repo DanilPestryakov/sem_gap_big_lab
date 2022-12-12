@@ -38,7 +38,7 @@ class Config:
         # init directories
 
         # In WINDOWS only. If you don't have tesseract executable in your PATH, include the following
-        pytesseract.pytesseract.tesseract_cmd = 'D:/Program Files/Tesseract-OCR/tesseract.exe'
+        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
         # Create all paths needed
 

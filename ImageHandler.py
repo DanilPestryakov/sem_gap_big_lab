@@ -96,18 +96,18 @@ class ImageHandler:
         self.lines = lines
 
     def expand_text_box(self):
-        # extending text boundboxes boundaries for 1% (coordinates manipulation)
+        # extending text boundboxes boundaries for 2% (coordinates manipulation)
+        EPS = 0.02
         f = open(self.app_config.OUTPUT_TEXT_BOX, "w+")  # file to write final coordinates of the text
         i = 0
-        # text_coords = np.empty((1, 8))
         str1 = " "
         for line in self.lines:
             if line:
                 numbs = line.split(',')
-                y_up = int(int(numbs[1]) * 0.99)
-                y_down = int(int(numbs[5]) * 1.01)
-                x_left = int(int(numbs[0]) * 0.99)
-                x_right = int(int(numbs[2]) * 1.01)
+                y_up = int(int(numbs[1]) * (1. - EPS))
+                y_down = int(int(numbs[5]) * (1. + EPS))
+                x_left = int(int(numbs[0]) * (1. - EPS))
+                x_right = int(int(numbs[2]) * (1. + EPS))
                 text_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
                 text_coords = [str(i) for i in text_coords]
                 crop_image = self.image_arr[y_up:y_down, x_left:x_right]
@@ -148,10 +148,10 @@ class ImageHandler:
         # cv.imshow("invert", img_not)
 
         kernel = np.ones((5, 5), np.uint8)
-        dilation = cv2.dilate(img_not, kernel, iterations=2)
+        dilation = cv2.dilate(img_not, kernel, iterations=1)
         # cv.imshow('dilation', dilation)
 
-        erosion = cv2.erode(dilation, kernel, iterations=2)
+        erosion = cv2.erode(dilation, kernel, iterations=1)
         # cv.imshow('erosion', erosion)
 
         self.enclosed_img = cv2.bitwise_not(erosion)
@@ -159,8 +159,9 @@ class ImageHandler:
 
     def detect_figures(self):
 
-        MIN_AREA = 5000
+        MIN_AREA = 1000
         MAX_AREA = 20000
+        EPS = 0.02  # figure boundbox 2% extension
 
         height, width, _ = self.enclosed_img.shape
         # image_size = height * width
@@ -187,10 +188,10 @@ class ImageHandler:
                 # cv2.drawContours(img, [box], -1, (255, 0, 0), 5)  # draw rectangle
                 x0, x1, x2, x3 = box[:, 0]
                 y0, y1, y2, y3 = box[:, 1]
-                y_up = int(y1 * 0.97)
-                y_down = int(y3 * 1.03)
-                x_left = int(x0 * 0.97)
-                x_right = int(x2 * 1.03)
+                y_up = int(y1 * (1. - EPS))
+                y_down = int(y3 * (1. + EPS))
+                x_left = int(x0 * (1. - 6*EPS))
+                x_right = int(x2 * (1. + 2*EPS))
                 figure_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
                 figure_coords = [str(i) for i in figure_coords]
                 crop_image = self.enclosed_img[y_up:y_down, x_left:x_right]
@@ -242,9 +243,6 @@ class ImageHandler:
                 for contour in contours[1:]:
                     # here we are ignoring first counter because
                     # findcontour function detects whole image as shape
-                    # if i == 0:
-                    #  i = 1
-                    #  continue
                     # cv2.approxPloyDP() function to approximate the shape
                     approx = cv2.approxPolyDP(
                         contour, 0.01 * cv2.arcLength(contour, True), True)
