@@ -15,30 +15,46 @@ class ImageHandler:
         self.app_config = Config(image)
         self.image_arr = []
         self.lines = None
+        self.all_boundboxes_text = []
+        self.img_inpainted = None
+        self.enclosed_img = []
+        self.edges = None
 
     def run_pipeline(self):
         self.detect_text()
         self.image_arr = cv2.imread(self.image)
         self.read_text_box()
+        self.expand_text_box()
+        self.recognize_text()
+        self.clean_image_from_text()
+        self.morphological_enclosing()
+        self.detect_figures()
+        self.recognize_figures()
+        self.clean_image_from_figures()
+        self.detect_lines()
+        self.recognize_lines()
+        self.lines_points()
+        ImageHandler.box_points(self.app_config.OUTPUT_FIGURE_BOX, self.app_config.OUTPUT_FIGURES_POINT)
+        ImageHandler.box_points(self.app_config.OUTPUT_TEXT_BOX, self.app_config.OUTPUT_TEXT_POINT)
 
 
     @classmethod
     def midpoint(cls, x1, y1, x2, y2):
         x_mid = int((x1 + x2) / 2)
         y_mid = int((y1 + y2) / 2)
-        return (x_mid, y_mid)
+        return x_mid, y_mid
 
     @classmethod
-    def masscenter(x0, y0, x1, y2):
+    def masscenter(cls, x0, y0, x1, y2):
         center_x = int((x0 + x1) / 2)
         center_y = int((y0 + y2) / 2)
-        return (center_x, center_y)
+        return center_x, center_y
 
     @classmethod
-    def InpaintText(numbs, image):
+    def inpaint_text(cls, numbs, image):
         x0, y0, x1, y1, x2, y2, x3, y3, *other = [float(i) for i in numbs]
-        x_mid0, y_mid0 = midpoint(x1, y1, x2, y2)
-        x_mid1, y_mid1 = midpoint(x0, y0, x3, y3)
+        x_mid0, y_mid0 = ImageHandler.midpoint(x1, y1, x2, y2)
+        x_mid1, y_mid1 = ImageHandler.midpoint(x0, y0, x3, y3)
         thickness = int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
         mask = np.zeros(image.shape[:2], dtype="uint8")
         cv2.line(mask, (x_mid0, y_mid0), (x_mid1, y_mid1), 255, thickness)
@@ -46,7 +62,7 @@ class ImageHandler:
         return img_inpainted
 
     @classmethod
-    def IdentifyHexagon(vertexes):
+    def identify_hexagon(cls, vertexes):
         lengths = []
         EPS_HEX = 4
         # vertexes.shape (6, 1, 2)
@@ -64,7 +80,7 @@ class ImageHandler:
 
     def detect_text(self):
         # create a craft instance
-        craft = Craft(output_dir=Config.AUTO_TEXT_DIR, crop_type="poly", cuda=False)
+        craft = Craft(output_dir=self.app_config.AUTO_TEXT_DIR, crop_type="poly", cuda=False)
         # apply craft text detection and export detected regions to output directory
         # prediction_result
         craft.detect_text(self.image)
@@ -104,38 +120,31 @@ class ImageHandler:
         f.close()
 
         # list to store text extended boundboxes
-        all_boundboxes_text = []
         all_text_files = os.listdir(self.app_config.EXPANDED_TEXT_DIR)
         for text in all_text_files:
-            all_boundboxes_text.append(os.path.join(self.app_config.EXPANDED_TEXT_DIR, text))
+            self.all_boundboxes_text.append(os.path.join(self.app_config.EXPANDED_TEXT_DIR, text))
 
-        return all_boundboxes_text
+        return self.all_boundboxes_text
 
-    @classmethod
-    def RecognizeText(output_text, all_boundboxes_text):
-        with open(output_text, 'w+') as f:  # file to write scheme text
-            for boundbox in all_boundboxes_text:
+    def recognize_text(self):
+        with open(self.app_config.OUTPUT_TEXT, 'w+') as f:  # file to write scheme text
+            for boundbox in self.all_boundboxes_text:
                 img_crop = cv2.imread(boundbox)
                 img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
-                f.write(pytesseract.image_to_string(img_rgb, config=Config.TESSERACT_CONFIG))
+                f.write(pytesseract.image_to_string(img_rgb, config=self.app_config.TESSERACT_CONFIG))
         print("Text recognized")
 
-    @classmethod
-    def CleanImageFromText(lines, image):
+    def clean_image_from_text(self):
         # cleaning image from text
         # x0, y0, x1, y1, x2, y2, x3, y3
-        img_inpainted = deepcopy(image)
-        for line in lines:
+        self.img_inpainted = deepcopy(self.image)
+        for line in self.lines:
             if line:
                 numbs = line.strip().split(',')
-                img_inpainted = InpaintText(numbs, img_inpainted)
+                self.img_inpainted = ImageHandler.inpaint_text(numbs, self.img_inpainted)
 
-        # cv2.imshow('Inpainted image', img_inpainted)
-        return img_inpainted
-
-    @classmethod
-    def MorphologicalEnclosing(img_inpainted, image_no_text):
-        img_not = cv2.bitwise_not(img_inpainted)
+    def morphological_enclosing(self):
+        img_not = cv2.bitwise_not(self.img_inpainted)
         # cv.imshow("invert", img_not)
 
         kernel = np.ones((5, 5), np.uint8)
@@ -145,27 +154,24 @@ class ImageHandler:
         erosion = cv2.erode(dilation, kernel, iterations=2)
         # cv.imshow('erosion', erosion)
 
-        img = cv2.bitwise_not(erosion)
-        cv2.imwrite(image_no_text, img)
+        self.enclosed_img = cv2.bitwise_not(erosion)
+        cv2.imwrite(self.app_config.IMAGE_NO_TEXT, self.enclosed_img)
 
-        return img
-
-    @classmethod
-    def DetectFigures(img, figures_dir, output_figure_box):
+    def detect_figures(self):
 
         MIN_AREA = 5000
         MAX_AREA = 20000
 
-        height, width, _ = img.shape
+        height, width, _ = self.enclosed_img.shape
         # image_size = height * width
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)  # change color model BGR to HSV
+        hsv = cv2.cvtColor(self.enclosed_img, cv2.COLOR_BGR2HSV)  # change color model BGR to HSV
         hsv_min = np.array((0, 0, 0), np.uint8)
         hsv_max = np.array((200, 200, 200), np.uint8)
         thresh = cv2.inRange(hsv, hsv_min, hsv_max)  # apply color filter
 
         contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # figure_coords = np.empty((1, 8))
-        f = open(output_figure_box, "w+")  # file to write final coordinates of figures
+        f = open(self.app_config.OUTPUT_FIGURE_BOX, "w+")  # file to write final coordinates of figures
         str2 = " "
         j = 0
 
@@ -187,9 +193,9 @@ class ImageHandler:
                 x_right = int(x2 * 1.03)
                 figure_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
                 figure_coords = [str(i) for i in figure_coords]
-                crop_image = img[y_up:y_down, x_left:x_right]
+                crop_image = self.enclosed_img[y_up:y_down, x_left:x_right]
                 cropname = 'crop_' + str(j) + '.png'
-                path = os.path.join(figures_dir, cropname)
+                path = os.path.join(self.app_config.FIGURES_DIR, cropname)
                 j += 1
                 cv2.imwrite(path, crop_image)
                 f.write(str2.join(figure_coords))
@@ -198,26 +204,24 @@ class ImageHandler:
         f.close()
         print("Figures detected")
 
-    @classmethod
-    def CleanImageFromFigures(image_no_text, output_figure_box, edges_image):
-        image = Image.open(image_no_text)
+    def clean_image_from_figures(self):
+        image = Image.open(self.app_config.IMAGE_NO_TEXT)
         draw = ImageDraw.Draw(image)
-        f = open(output_figure_box)
+        f = open(self.app_config.OUTPUT_FIGURE_BOX)
         lines = f.readlines()
         for line in lines:
             x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down = list(map(lambda x: int(x), line.split()))
             draw.polygon(((x_left, y_up), (x_right, y_up), (x_right, y_down), (x_left, y_down)), fill="white")
-            image.save(edges_image)  # inpaint figures and save result (only edges)
+            image.save(self.app_config.EDGES_IMAGE)  # inpaint figures and save result (only edges)
 
-    @classmethod
-    def RecognizeFigures(figures_dir, output_figure):
+    def recognize_figures(self):
         # list to store text extended boundboxes
         all_boundboxes_figures = []
-        all_figure_files = os.listdir(figures_dir)
+        all_figure_files = os.listdir(self.app_config.FIGURES_DIR)
         for figure in all_figure_files:
-            all_boundboxes_figures.append(os.path.join(figures_dir, figure))
+            all_boundboxes_figures.append(os.path.join(self.app_config.FIGURES_DIR, figure))
 
-        with open(output_figure, 'w+') as f:  # file to write scheme figures
+        with open(self.app_config.OUTPUT_FIGURE, 'w+') as f:  # file to write scheme figures
             for boundbox in all_boundboxes_figures:
 
                 # reading image
@@ -268,7 +272,7 @@ class ImageHandler:
                         cv2.putText(img, 'Hexagon', (x, y),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
-                        figure_name = IdentifyHexagon(approx)
+                        figure_name = ImageHandler.identify_hexagon(approx)
                         # figure_name = 'Hexagon'
 
                         # print('approx = ', approx)
@@ -283,26 +287,23 @@ class ImageHandler:
                 f.write('\n')
         print("Figures recognized")
 
-    @classmethod
-    def DetectLines(edges_image):
+    def detect_lines(self):
         # Read image
-        image = cv2.imread(edges_image)
+        image = cv2.imread(self.app_config.EDGES_IMAGE)
         # Convert image to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # Use canny edge detection
-        edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+        self.edges = cv2.Canny(gray, 50, 150, apertureSize=3)
         print("Lines detected")
-        return edges
 
-    @classmethod
-    def RecognizeLines(edges, output_lines_box, edges_image):
+    def recognize_lines(self):
         # Read image
-        image = cv2.imread(edges_image)
+        image = cv2.imread(self.app_config.EDGES_IMAGE)
         # Apply HoughLinesP method to
         # to directly obtain line end points
         lines_list = []
         lines = cv2.HoughLinesP(
-            edges,  # Input edge image
+            self.edges,  # Input edge image
             1,  # Distance resolution in pixels
             np.pi / 180,  # Angle resolution in radians
             threshold=20,  # Min number of votes for valid line
@@ -323,7 +324,7 @@ class ImageHandler:
         cv2.imshow('edges', image)
 
         str3 = " "
-        with open(output_lines_box, "w+") as f:
+        with open(self.app_config.OUTPUT_LINES_BOX, "w+") as f:
             for line in lines_list:
                 line_coords = [str(i) for i in line]
                 f.write(str3.join(line_coords))
@@ -331,14 +332,13 @@ class ImageHandler:
 
         print("Lines recognized")
 
-    @classmethod
-    def LinesPoints(output_lines_box, output_lines_point):
+    def lines_points(self):
 
         EPS = 3  # accuracy of assuming line horizontal/vertical (in pixels)
         EPS_POINT = 20  # accuracy of side line entrance to main line
 
         # read lines points coordinates
-        f = open(output_lines_box)
+        f = open(self.app_config.OUTPUT_LINES_BOX)
         Horizontal = []
         Vertical = []
         lines = f.readlines()
@@ -387,7 +387,7 @@ class ImageHandler:
         for i in range(len(bad_indexes_less)):
             del (points_list[bad_indexes_less[i]])
 
-        with open(output_lines_point, 'w+') as f:
+        with open(self.app_config.OUTPUT_LINES_POINT, 'w+') as f:
             for elem in points_list:
                 x, y = elem
                 point_coords = str(x) + " " + str(y)
@@ -395,13 +395,13 @@ class ImageHandler:
                 f.write('\n')
 
     @classmethod
-    def BoxPoints(output_figure_box, output_figures_point):
+    def box_points(cls, output_figure_box, output_figures_point):
         fr = open(output_figure_box)
         fw = open(output_figures_point, "w+")
         lines = fr.readlines()
         for line in lines:
             x0, y0, x1, y1, x2, y2, x3, y3 = list(map(lambda x: int(x), line.split()))
-            xc, yc = masscenter(x0, y0, x1, y2)
+            xc, yc = ImageHandler.masscenter(x0, y0, x1, y2)
             point_coords = str(xc) + " " + str(yc)
             fw.write(point_coords)
             fw.write('\n')
