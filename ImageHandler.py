@@ -137,7 +137,7 @@ class ImageHandler:
     def clean_image_from_text(self):
         # cleaning image from text
         # x0, y0, x1, y1, x2, y2, x3, y3
-        self.img_inpainted = deepcopy(self.image)
+        self.img_inpainted = deepcopy(self.image_arr)
         for line in self.lines:
             if line:
                 numbs = line.strip().split(',')

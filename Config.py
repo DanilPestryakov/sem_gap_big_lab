@@ -70,5 +70,5 @@ class Config:
             os.makedirs(Config.HELP_DIR)
 
         # path to file with text boundboxes coordinates
-        pattern = re.search('(.+?).png', image).group(1)
+        pattern = re.search('(.+?).png', image).group(1).split('/')[-1]
         self.TEXT_COORDS_FILE = os.path.join('auto_text', pattern + '_text_detection.txt')
