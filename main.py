@@ -1,18 +1,17 @@
 from Config import *
 from ImageHandler import *
-from DataStructure import *
+from DataStructureConnector import *
 from BST_examples import DataStructureExample
 
 im_handler = ImageHandler('./test_images/im007a.png')
 im_handler.run_pipeline()
+ds_connector = DataStructureConnector(im_handler.app_config)
 
-TextElements = ConnectElementsAndBoxes(Config.OUTPUT_TEXT, Config.OUTPUT_TEXT_BOX, Config.OUTPUT_TEXT_POINT)
-FigureElements = ConnectElementsAndBoxes(Config.OUTPUT_FIGURE, Config.OUTPUT_FIGURE_BOX, Config.OUTPUT_FIGURES_POINT)
 
 # print(TextElements)
 # print(FigureElements)
 
-arguments, BST_TREE, YES_TREES, NO_TREES = DataStructure(FigureElements, TextElements, Config.OUTPUT_LINES_POINT)
+arguments, BST_TREE, YES_TREES, NO_TREES = ds_connector.run_pipeline()
 
 print('arguments:\n', arguments)
 print('BST_TREE:\n', BST_TREE)
