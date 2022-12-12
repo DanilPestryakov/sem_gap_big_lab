@@ -1,5 +1,9 @@
 import math
 
+
+class DataStructureConnector:
+    pass
+
 def ApplyTextToFigures(Trees, text):
 
     for tree in Trees:

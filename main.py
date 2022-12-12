@@ -3,7 +3,7 @@ from ImageHandler import *
 from DataStructure import *
 from BST_examples import DataStructureExample
 
-im_handler = ImageHandler('./test_images/test1.png')
+im_handler = ImageHandler('./test_images/im007a.png')
 im_handler.run_pipeline()
 
 TextElements = ConnectElementsAndBoxes(Config.OUTPUT_TEXT, Config.OUTPUT_TEXT_BOX, Config.OUTPUT_TEXT_POINT)
