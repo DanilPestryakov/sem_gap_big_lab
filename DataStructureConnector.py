@@ -42,6 +42,10 @@ class DataStructureConnector:
                     x, y = code['coord']
                     if (x0 < x < x1) and (y0 < y < y2):
                         elem['code'] = code['text']
+#        for tree in trees:
+#            for elem in tree:
+#                if elem['text'] == 'HexagonCycle' and elem['code'] == '':
+#                    elem['text'] = 'HexagonCycleEndPoint'
 
     def apply_text_to_figures_arguments(self, arg):
         for elem in arg:
@@ -80,7 +84,8 @@ class DataStructureConnector:
                 Points.append([x, y])
 
         hexagon = [d for d in list2 if d['text'] == 'HexagonCondition' or d['text'] == 'HexagonCycle']
-        print("hexagon", hexagon)
+        hexagon_end_point = [d['coord'] for d in list2 if d['text'] == 'HexagonCycleEndPoint']
+        Points.extend(hexagon_end_point)
 
         #    common_length_dist = len(list2)
         #    for i in range(common_length_dist):

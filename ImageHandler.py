@@ -63,9 +63,13 @@ class ImageHandler:
 
     @classmethod
     def identify_hexagon(cls, vertexes):
-        lengths = []
         EPS_HEX = 4
+        lengths = []
         # vertexes.shape (6, 1, 2)
+        vertexes_coords = sorted(vertexes, key=lambda v: v[:][0][1], reverse=False)
+        max_edge = max(vertexes_coords[-1][0][0], vertexes_coords[-2][0][0]) - \
+            min(vertexes_coords[-1][0][0], vertexes_coords[-2][0][0])
+
         for i in range(len(vertexes) - 1):
             x0, y0, x1, y1 = vertexes[i][0][0], vertexes[i][0][1], vertexes[i + 1][0][0], vertexes[i + 1][0][1]
             lengths.append(math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)))
@@ -73,8 +77,11 @@ class ImageHandler:
                          vertexes[len(vertexes) - 1][0][1]
         lengths.append(math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)))
         lengths.sort()
+
         if abs(lengths[-1] - lengths[-2]) < EPS_HEX:
             return "HexagonCondition"
+        elif abs(max_edge - lengths[-1]) > 1:
+            return "HexagonCycleEndPoint"
         else:
             return "HexagonCycle"
 
