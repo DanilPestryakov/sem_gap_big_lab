@@ -42,10 +42,6 @@ class DataStructureConnector:
                     x, y = code['coord']
                     if (x0 < x < x1) and (y0 < y < y2):
                         elem['code'] = code['text']
-#        for tree in trees:
-#            for elem in tree:
-#                if elem['text'] == 'HexagonCycle' and elem['code'] == '':
-#                    elem['text'] = 'HexagonCycleEndPoint'
 
     def apply_text_to_figures_arguments(self, arg):
         for elem in arg:

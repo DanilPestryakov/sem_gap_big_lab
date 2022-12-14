@@ -1,6 +1,7 @@
 import cv2
 from craft_text_detector import Craft  # Import Craft class for text detection
 import numpy as np
+import scipy.cluster.hierarchy as hcluster
 import math
 from copy import deepcopy
 from PIL import Image, ImageDraw
@@ -377,20 +378,20 @@ class ImageHandler:
                 if (abs(x0_h - x0_v) < EPS_POINT) and (y0_v < y0_h < y1_v):
                     points_lst.append([x0_v, y0_h])
 
-        points_list = sorted(points_lst)
-        bad_indexes = []
-        for i in range(len(points_list)):
-            for j in range(len(points_list)):
-                dist = math.sqrt(
-                    pow(points_list[i][0] - points_list[j][0], 2) + pow(points_list[i][1] - points_list[j][1], 2))
-                if dist < EPS_POINT:
-                    bad_indexes.append(j)
+        thresh = 5
+        clusters = hcluster.fclusterdata(points_lst, thresh, criterion="distance")
+        clusters_id = list(set(clusters))
 
-        bad_indexes = list(set(bad_indexes))
-        bad_indexes_less = bad_indexes[::2]
-
-        for i in range(len(bad_indexes_less)):
-            del (points_list[bad_indexes_less[i]])
+        points_list = []
+        for id in clusters_id:
+            nearest_points = []
+            for i in range(len(clusters)):
+                if clusters[i] == id:
+                    nearest_points.append(points_lst[i])
+            center_x = int(sum([elem[0] for elem in nearest_points]) / len(nearest_points))
+            center_y = int(sum([elem[1] for elem in nearest_points]) / len(nearest_points))
+            points_list.append([center_x, center_y])
+            points_lst.clear()
 
         with open(self.app_config.OUTPUT_LINES_POINT, 'w+') as f:
             for elem in points_list:
