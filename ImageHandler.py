@@ -53,13 +53,14 @@ class ImageHandler:
 
     @classmethod
     def inpaint_text(cls, numbs, image):
+        #TODO clear from other
         x0, y0, x1, y1, x2, y2, x3, y3, *other = [float(i) for i in numbs]
         x_mid0, y_mid0 = ImageHandler.midpoint(x1, y1, x2, y2)
         x_mid1, y_mid1 = ImageHandler.midpoint(x0, y0, x3, y3)
         thickness = int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
         mask = np.zeros(image.shape[:2], dtype="uint8")
         cv2.line(mask, (x_mid0, y_mid0), (x_mid1, y_mid1), 255, thickness)
-        img_inpainted = cv2.inpaint(image, mask, 7, cv2.INPAINT_NS)
+        img_inpainted = cv2.inpaint(image, mask, 6, cv2.INPAINT_NS)
         return img_inpainted
 
     @classmethod
@@ -145,10 +146,12 @@ class ImageHandler:
     def clean_image_from_text(self):
         # cleaning image from text
         # x0, y0, x1, y1, x2, y2, x3, y3
+        #TODO check numbs
         self.img_inpainted = deepcopy(self.image_arr)
         for line in self.lines:
             if line:
                 numbs = line.strip().split(',')
+                print(numbs)
                 self.img_inpainted = ImageHandler.inpaint_text(numbs, self.img_inpainted)
 
     def morphological_enclosing(self):
@@ -378,27 +381,29 @@ class ImageHandler:
                 if (abs(x0_h - x0_v) < EPS_POINT) and (y0_v < y0_h < y1_v):
                     points_lst.append([x0_v, y0_h])
 
-        thresh = 5
-        clusters = hcluster.fclusterdata(points_lst, thresh, criterion="distance")
-        clusters_id = list(set(clusters))
-
         points_list = []
-        for id in clusters_id:
-            nearest_points = []
-            for i in range(len(clusters)):
-                if clusters[i] == id:
-                    nearest_points.append(points_lst[i])
-            center_x = int(sum([elem[0] for elem in nearest_points]) / len(nearest_points))
-            center_y = int(sum([elem[1] for elem in nearest_points]) / len(nearest_points))
-            points_list.append([center_x, center_y])
-            points_lst.clear()
+        if len(points_lst) > 1:
+            thresh = 5
+            clusters = hcluster.fclusterdata(points_lst, thresh, criterion="distance")
+            clusters_id = list(set(clusters))
+
+            for id in clusters_id:
+                nearest_points = []
+                for i in range(len(clusters)):
+                    if clusters[i] == id:
+                        nearest_points.append(points_lst[i])
+                center_x = int(sum([elem[0] for elem in nearest_points]) / len(nearest_points))
+                center_y = int(sum([elem[1] for elem in nearest_points]) / len(nearest_points))
+                points_list.append([center_x, center_y])
+                points_lst.clear()
 
         with open(self.app_config.OUTPUT_LINES_POINT, 'w+') as f:
-            for elem in points_list:
-                x, y = elem
-                point_coords = str(x) + " " + str(y)
-                f.write(point_coords)
-                f.write('\n')
+            if len(points_list) > 1:
+                for elem in points_list:
+                    x, y = elem
+                    point_coords = str(x) + " " + str(y)
+                    f.write(point_coords)
+                    f.write('\n')
 
     @classmethod
     def box_points(cls, output_figure_box, output_figures_point):

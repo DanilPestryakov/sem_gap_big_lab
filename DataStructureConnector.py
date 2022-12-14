@@ -67,10 +67,12 @@ class DataStructureConnector:
 
         list2 = []  # filtered from program arguments figure
         arguments = [d if d['text'] == 'Quadrilateral' and
-                          math.pow(d['coord'][1] - program_begin['coord'][1], 2) < EPS_DIST else list2.append(d) for d
+                          abs(d['coord'][1] - program_begin['coord'][1]) < EPS_DIST else list2.append(d) for d
                      in
                      list1]
         arguments = list(filter(lambda item: item is not None, arguments))
+        #print(newlist)
+        #print(arguments)
 
         Points = []
         with open(self.app_config.OUTPUT_LINES_POINT) as f:
