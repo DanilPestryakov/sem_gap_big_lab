@@ -53,8 +53,7 @@ class ImageHandler:
 
     @classmethod
     def inpaint_text(cls, numbs, image):
-        #TODO clear from other
-        x0, y0, x1, y1, x2, y2, x3, y3, *other = [float(i) for i in numbs]
+        x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in numbs]
         x_mid0, y_mid0 = ImageHandler.midpoint(x1, y1, x2, y2)
         x_mid1, y_mid1 = ImageHandler.midpoint(x0, y0, x3, y3)
         thickness = int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
@@ -102,6 +101,18 @@ class ImageHandler:
         # reading text coordinates, removing the new line characters
         with open(self.app_config.TEXT_COORDS_FILE) as f:
             lines = [line.rstrip() for line in f]
+            for i in range(len(lines)):
+                checkline = lines[i].split(',')
+                if len(checkline) > 8:
+                    numbs_all = [int(n) for n in checkline]
+                    numbs_x = numbs_all[0::2]
+                    numbs_y = numbs_all[1::2]
+                    max_x = max(numbs_x)
+                    min_x = min(numbs_x)
+                    max_y = max(numbs_y)
+                    min_y = min(numbs_y)
+                    numbs = [min_x, min_y, max_x, min_y, max_x, max_y, min_x, max_y]
+                    lines[i] = ','.join([str(n) for n in numbs])
         self.lines = lines
 
     def expand_text_box(self):
@@ -146,12 +157,10 @@ class ImageHandler:
     def clean_image_from_text(self):
         # cleaning image from text
         # x0, y0, x1, y1, x2, y2, x3, y3
-        #TODO check numbs
         self.img_inpainted = deepcopy(self.image_arr)
         for line in self.lines:
             if line:
                 numbs = line.strip().split(',')
-                print(numbs)
                 self.img_inpainted = ImageHandler.inpaint_text(numbs, self.img_inpainted)
 
     def morphological_enclosing(self):
