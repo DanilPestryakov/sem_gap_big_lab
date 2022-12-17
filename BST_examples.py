@@ -68,6 +68,37 @@ def MyTest():
     print(f"{'_' * 30}\nMy example")
     bst = BlockSchemeTree()
     maximum = FuncStep('JustSoTest', ['a', 'b'], bst, bst)
+
+    str_1_step = SimpleCodeStep('a = a', maximum, bst)
+    str_2_step = SimpleCodeStep('b = b',  str_1_step, bst)
+
+    yes_tree = BlockSchemeTree()
+
+    yes_step1 = SimpleCodeStep('yes = yes', yes_tree, yes_tree)
+    yes_step2 = SimpleCodeStep('yes!', yes_step1, yes_tree)
+
+    no_tree1 = BlockSchemeTree()
+    str_n1_step = SimpleCodeStep('print(d)', no_tree1, no_tree1)
+    str_n2_step = SimpleCodeStep('print(F)', str_n1_step, no_tree1)
+
+    yes_tree1 = BlockSchemeTree()
+    str_y1_step = SimpleCodeStep('print(ddd)', yes_tree1, yes_tree1)
+    str_y2_step = SimpleCodeStep('print(FFF)', str_y1_step, yes_tree1)
+
+    cond1 = ConditionStep('c > d', yes_tree1, no_tree1, yes_step2, yes_tree)
+
+    cond = ConditionStep('b > a', yes_tree, None, str_2_step, bst)
+
+    str_3_step = SimpleCodeStep('print(c)', cond, bst)
+
+    print(bst.generate_code())
+
+
+def MyTest2():
+    print(f"{'_' * 30}\nMy example")
+    bst = BlockSchemeTree()
+    maximum = FuncStep('JustSoTest', ['a', 'b'], bst, bst)
+
     str_1_step = SimpleCodeStep('a = a', maximum, bst)
     str_2_step = SimpleCodeStep('b = b',  str_1_step, bst)
 
@@ -75,15 +106,27 @@ def MyTest():
     yes_step1 = SimpleCodeStep('yes = yes', yes_tree, yes_tree)
     yes_step2 = SimpleCodeStep('yes!', yes_step1, yes_tree)
 
-    cond = ConditionStep('b > a', yes_tree, None, str_2_step, bst)
-    str_3_step = SimpleCodeStep('print(c)', cond, bst)
+    no_tree1 = BlockSchemeTree()
+    str_n1_step = SimpleCodeStep('print(d)', no_tree1, no_tree1)
+    str_n2_step = SimpleCodeStep('print(F)', str_n1_step, no_tree1)
 
+    yes_tree1 = BlockSchemeTree()
+    str_y1_step = SimpleCodeStep('print(ddd)', yes_tree1, yes_tree1)
+    str_y2_step = SimpleCodeStep('print(FFF)', str_y1_step, yes_tree1)
+
+    cond = ConditionStep('b > a', yes_tree, None, str_2_step, bst)
+    cond1 = ConditionStep('c > d', yes_tree1, no_tree1, cond, bst)
+
+    str_3_step = SimpleCodeStep('print(c)', cond1, bst)
 
     print(bst.generate_code())
+
 
 def DataStructureExample(SCHEME):
 
     print(f"{'_' * 30}\nExample minimum with DataStructure")
+
+    print(SCHEME)
 
 #    bst = BlockSchemeTree()
 
@@ -113,6 +156,7 @@ def DataStructureExample(SCHEME):
 
 
 if __name__ == "__main__":
-    examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
+    #examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
+    examples = [MyTest, MyTest2]
     for example in examples:
         example()

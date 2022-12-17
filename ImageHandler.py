@@ -404,7 +404,7 @@ class ImageHandler:
                 center_x = int(sum([elem[0] for elem in nearest_points]) / len(nearest_points))
                 center_y = int(sum([elem[1] for elem in nearest_points]) / len(nearest_points))
                 points_list.append([center_x, center_y])
-                points_lst.clear()
+                nearest_points.clear()
 
         with open(self.app_config.OUTPUT_LINES_POINT, 'w+') as f:
             if points_list:
@@ -421,7 +421,7 @@ class ImageHandler:
         lines = fr.readlines()
         for line in lines:
             x0, y0, x1, y1, x2, y2, x3, y3 = list(map(lambda x: int(x), line.split()))
-            xc, yc = ImageHandler.masscenter(x0, y0, x1, y2)
+            xc, yc = ImageHandler.masscenter(x0, y1, x1, y3)
             point_coords = str(xc) + " " + str(yc)
             fw.write(point_coords)
             fw.write('\n')

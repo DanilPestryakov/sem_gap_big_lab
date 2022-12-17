@@ -36,10 +36,12 @@ class DataStructureConnector:
 
     def apply_text_to_figures(self, lst):
         for elem in lst:
+            print(elem)
             x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
             for code in self.text_elements:
+                print(code)
                 x, y = code['coord']
-                if (x0 < x < x1) and (y0 < y < y2):
+                if (x0 < x < x1) and (y1 < y < y3):
                     elem['code'] = code['text']
 
     def apply_text_to_figures_arguments(self, lst):
