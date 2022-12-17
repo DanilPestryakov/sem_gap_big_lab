@@ -65,6 +65,7 @@ class DataStructureConnector:
         newlist_circle = sorted(circle, key=lambda i: i['coord'][1], reverse=False)
         program_begin = newlist_circle[0]
         program_end = newlist_circle[1]
+        newlist_circle[1]['text'] = 'CircleEndPoint'
 
         total_list = []  # filtered from program arguments figure
         arguments = [d if d['text'] == 'Quadrilateral' and
@@ -74,14 +75,24 @@ class DataStructureConnector:
         arguments = list(filter(lambda item: item is not None, arguments))
         temp_list.clear()
 
+        points = []
+        with open(self.app_config.OUTPUT_LINES_POINT) as f:
+            lines = f.readlines()
+            for line in lines:
+                elem = {'text': 'EndPoint'}
+                x, y = list(map(lambda x: int(x), line.split()))
+                elem['box'] = [x, y, x, y, x, y, x, y]
+                elem['coord'] = [x, y]
+                elem['code'] = ''
+                points.append(elem)
+
         self.apply_text_to_figures(total_list)
-        self.apply_text_to_figures(circle)
+        self.apply_text_to_figures(newlist_circle)
         self.apply_text_to_figures_arguments(arguments)
 
-        total_list.extend(circle)
+        total_list.extend(newlist_circle)
         total_list.extend(arguments)
-
-#        print('total_list', total_list)
+        total_list.extend(points)
 
         return total_list
 """
