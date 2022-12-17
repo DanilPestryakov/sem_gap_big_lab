@@ -27,6 +27,8 @@ class BlockSchemeTree:
         # set next step
         if prev_step is not None:
             self.prev_step.next_step = self
+        if prev_step == parent_tree and parent_tree is not None:
+            self.parent_tree.initial_step = self
 
     def set_initial_step(self, initial_step: BlockSchemeTree):
         """

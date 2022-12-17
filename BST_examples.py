@@ -8,7 +8,6 @@ def example_hello():
     hello_step = FuncStep('hello', ['a', 'b'], bst, bst)
     str_1_step = SimpleCodeStep('print(a, b)', hello_step, bst)
 
-    bst.set_initial_step(hello_step)
     print(bst.generate_code())
 
 
@@ -22,9 +21,7 @@ def example_minimum():
     no_step = SimpleCodeStep('print(b)', no_tree, no_tree)
     cond = ConditionStep('a < b', yes_tree, no_tree, minimum, bst)
 
-    yes_tree.set_initial_step(yes_step)
-    no_tree.set_initial_step(no_step)
-    bst.set_initial_step(minimum)
+
     print(bst.generate_code())
 
 
@@ -38,8 +35,7 @@ def example_maximum():
     cond = ConditionStep('b > a', yes_tree, None, str_1_step, bst)
     str_2_step = SimpleCodeStep('print(c)', cond, bst)
 
-    yes_tree.set_initial_step(yes_step)
-    bst.set_initial_step(maximum)
+
     print(bst.generate_code())
 
 
@@ -53,8 +49,7 @@ def example_decrement():
 
     print_step = SimpleCodeStep('print(a)', iterator_step, bst)
 
-    iterable_tree.set_initial_step(iterable_step)
-    bst.set_initial_step(decrement)
+
     print(bst.generate_code())
 
 
@@ -66,8 +61,6 @@ def example_cycle():
     iterable_step = SimpleCodeStep('print(i)', iterable_tree, iterable_tree)
     iterator_step = CycleStep('for i in range (1, 11)', '', iterable_tree, cycle, bst)
 
-    iterable_tree.set_initial_step(iterable_step)
-    bst.set_initial_step(cycle)
     print(bst.generate_code())
 
 
@@ -85,8 +78,6 @@ def MyTest():
     cond = ConditionStep('b > a', yes_tree, None, str_2_step, bst)
     str_3_step = SimpleCodeStep('print(c)', cond, bst)
 
-    bst.set_initial_step(maximum)
-    yes_tree.set_initial_step(yes_step1)
 
     print(bst.generate_code())
 
