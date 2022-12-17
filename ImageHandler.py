@@ -131,20 +131,14 @@ class ImageHandler:
                 text_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
                 text_coords = [str(i) for i in text_coords]
                 crop_image = self.image_arr[y_up:y_down, x_left:x_right]
-                cropname = 'crop_' + str(i) + '.png'
+                cropname = f'crop_{i}.png'
                 path = os.path.join(self.app_config.EXPANDED_TEXT_DIR, cropname)
+                self.all_boundboxes_text.append(path)
                 i += 1
                 cv2.imwrite(path, crop_image)
                 f.write(str1.join(text_coords))
                 f.write('\n')
         f.close()
-
-        # list to store text extended boundboxes
-        all_text_files = os.listdir(self.app_config.EXPANDED_TEXT_DIR)
-        for text in all_text_files:
-            self.all_boundboxes_text.append(os.path.join(self.app_config.EXPANDED_TEXT_DIR, text))
-
-        return self.all_boundboxes_text
 
     def recognize_text(self):
         with open(self.app_config.OUTPUT_TEXT, 'w+') as f:  # file to write scheme text
