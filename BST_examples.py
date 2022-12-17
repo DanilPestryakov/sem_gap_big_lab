@@ -81,34 +81,35 @@ def MyTest():
 
     print(bst.generate_code())
 
-def DataStructureExample(arguments, BST_TREE, YES_TREES, NO_TREES):
+def DataStructureExample(SCHEME):
 
     print(f"{'_' * 30}\nExample minimum with DataStructure")
-    bst = BlockSchemeTree()
 
-    if arguments:
-        programe_name = FuncStep(BST_TREE[0][0]['code'], arguments[0]['code'], bst, bst)
-    else:
-        programe_name = FuncStep(BST_TREE[0][0]['code'], '', bst, bst)
+#    bst = BlockSchemeTree()
 
-    if NO_TREES and len(NO_TREES[0]) > 1:
-        yes_tree = [BlockSchemeTree()]*len(YES_TREES)
-        no_tree = [BlockSchemeTree()] * len(NO_TREES)
-        for i in range(len(YES_TREES)):
-            init_step_yes = SimpleCodeStep(YES_TREES[i][1]['code'], yes_tree[i], yes_tree[i])
-            init_step_no = SimpleCodeStep(NO_TREES[i][1]['code'], no_tree[i], no_tree[i])
-            yes_tree[i].set_initial_step(init_step_yes)
-            no_tree[i].set_initial_step(init_step_no)
-            cond = ConditionStep(YES_TREES[i][0]['code'], yes_tree[i], no_tree[i], programe_name, bst)
-    elif YES_TREES and len(YES_TREES[0]) > 1:
-        yes_tree = [BlockSchemeTree()]*len(YES_TREES)
-        for i in range(len(YES_TREES)):
-            init_step_yes = SimpleCodeStep(YES_TREES[i][1]['code'], yes_tree[i], yes_tree[i])
-            yes_tree[i].set_initial_step(init_step_yes)
-            cond = ConditionStep(YES_TREES[i][0]['code'], yes_tree[i], None, programe_name, bst)
+#    if arguments:
+#        programe_name = FuncStep(BST_TREE[0][0]['code'], arguments[0]['code'], bst, bst)
+#    else:
+#        programe_name = FuncStep(BST_TREE[0][0]['code'], '', bst, bst)
 
-    bst.set_initial_step(programe_name)
-    print(bst.generate_code())
+#    if NO_TREES and len(NO_TREES[0]) > 1:
+#        yes_tree = [BlockSchemeTree()]*len(YES_TREES)
+#        no_tree = [BlockSchemeTree()] * len(NO_TREES)
+#        for i in range(len(YES_TREES)):
+#            init_step_yes = SimpleCodeStep(YES_TREES[i][1]['code'], yes_tree[i], yes_tree[i])
+#            init_step_no = SimpleCodeStep(NO_TREES[i][1]['code'], no_tree[i], no_tree[i])
+#            yes_tree[i].set_initial_step(init_step_yes)
+#            no_tree[i].set_initial_step(init_step_no)
+#            cond = ConditionStep(YES_TREES[i][0]['code'], yes_tree[i], no_tree[i], programe_name, bst)
+#    elif YES_TREES and len(YES_TREES[0]) > 1:
+#        yes_tree = [BlockSchemeTree()]*len(YES_TREES)
+#        for i in range(len(YES_TREES)):
+#            init_step_yes = SimpleCodeStep(YES_TREES[i][1]['code'], yes_tree[i], yes_tree[i])
+#            yes_tree[i].set_initial_step(init_step_yes)
+#            cond = ConditionStep(YES_TREES[i][0]['code'], yes_tree[i], None, programe_name, bst)
+
+#    bst.set_initial_step(programe_name)
+#    print(bst.generate_code())
 
 
 if __name__ == "__main__":

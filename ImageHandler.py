@@ -407,7 +407,7 @@ class ImageHandler:
                 points_lst.clear()
 
         with open(self.app_config.OUTPUT_LINES_POINT, 'w+') as f:
-            if len(points_list) > 1:
+            if points_list:
                 for elem in points_list:
                     x, y = elem
                     point_coords = str(x) + " " + str(y)
