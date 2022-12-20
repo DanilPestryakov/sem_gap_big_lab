@@ -36,10 +36,8 @@ class DataStructureConnector:
 
     def apply_text_to_figures(self, lst):
         for elem in lst:
-            print(elem)
             x0, y0, x1, y1, x2, y2, x3, y3 = elem['box']
             for code in self.text_elements:
-                print(code)
                 x, y = code['coord']
                 if (x0 < x < x1) and (y1 < y < y3):
                     elem['code'] = code['text']
@@ -58,6 +56,7 @@ class DataStructureConnector:
         EPS_DIST = 10
 
         newlist = sorted(self.figure_elements, key=lambda i: i['coord'][1], reverse=False)
+        # print('newlist', newlist)
 
         temp_list = []  # filtered from circles (program begin/end)
         circle = [d if d['text'] == 'Circle' else temp_list.append(d) for d in newlist]

@@ -1,3 +1,5 @@
+import re
+
 import cv2
 from craft_text_detector import Craft  # Import Craft class for text detection
 import numpy as np
@@ -145,7 +147,16 @@ class ImageHandler:
             for boundbox in self.all_boundboxes_text:
                 img_crop = cv2.imread(boundbox)
                 img_rgb = cv2.cvtColor(img_crop, cv2.COLOR_BGR2RGB)
-                f.write(pytesseract.image_to_string(img_rgb, config=self.app_config.TESSERACT_CONFIG))
+                text = pytesseract.image_to_string(img_rgb, config=self.app_config.TESSERACT_CONFIG)
+                f.write(text)
+        with open(self.app_config.OUTPUT_TEXT) as fr:
+            text_rev = fr.readlines()
+
+        text_rev = [t for t in text_rev if re.search(r'(?i)[a-z]', t.lower())]
+        with open(self.app_config.OUTPUT_TEXT, 'w+') as f:
+            for line in text_rev:
+                f.write(line)
+
         print("Text recognized")
 
     def clean_image_from_text(self):
@@ -333,7 +344,7 @@ class ImageHandler:
             lines_list.append([x1, y1, x2, y2])
 
         # Show the result image
-        cv2.imshow('edges', image)
+        #cv2.imshow('edges', image)
 
         str3 = " "
         with open(self.app_config.OUTPUT_LINES_BOX, "w+") as f:

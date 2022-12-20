@@ -1,6 +1,6 @@
 from BlockSchemeTree import BlockSchemeTree
 from BlockSchemeTree.Steps import ConditionStep, CycleStep, FuncStep, SimpleCodeStep
-
+from DataStructureConnector import *
 
 def example_hello():
     print(f"{'_' * 30}\nExample hello")
@@ -121,12 +121,51 @@ def MyTest2():
 
     print(bst.generate_code())
 
+def has_neighbour_yes(SCHEME, elem):
+    for item in SCHEME:
+        dist_x = abs(elem['coord'][0] - item['coord'][0])
+        dist_y = item['coord'][1] - elem['coord'][1]
+        if dist_x < 10 and 0 < dist_y < 100:
+            return item
+    return None
+
+
+def has_neighbour_no(SCHEME, elem):
+    for item in SCHEME:
+        dist_x = item['coord'][0] - elem['coord'][0]
+        dist_y = item['coord'][1] - elem['coord'][1]
+        if 200 < dist_x < 400 and 0 < dist_y < 100:
+            return item
+    return None
 
 def DataStructureExample(SCHEME):
 
     print(f"{'_' * 30}\nExample minimum with DataStructure")
 
     print(SCHEME)
+
+    SCHEME_SORT = sorted(SCHEME, key=lambda f: f['coord'][1], reverse=False)
+
+    cycles_begin = [d for d in SCHEME_SORT if d['text'] == 'HexagonCondition' \
+                    or d['text'] == 'HexagonCycle' or d['text'] == 'Circle']
+    cycles_end = [d for d in SCHEME_SORT if d['text'] == 'EndPoint' or d['text'] == 'CircleEndPoint' \
+                  or d['text'] == 'HexagonCycleEndPoint']
+
+    for hexagon in cycles_begin:
+        print('hexagon =', hexagon)
+        yes_n = has_neighbour_yes(SCHEME_SORT, hexagon)
+        print('yes_n =', yes_n)
+        no_n = has_neighbour_no(SCHEME_SORT, hexagon)
+        print('no_n =', no_n)
+
+    levels = sorted(cycles_begin, key=lambda b: b['coord'][0], reverse=False)
+
+ #   print()
+ #   print(cycles_begin)
+ #   print()
+ #   print(cycles_end)
+ #   print()
+ #   print(levels)
 
 #    bst = BlockSchemeTree()
 
@@ -157,6 +196,7 @@ def DataStructureExample(SCHEME):
 
 if __name__ == "__main__":
     #examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
-    examples = [MyTest, MyTest2]
+    #examples = [MyTest, MyTest2]
+    examples = [DataStructureExample]
     for example in examples:
         example()
