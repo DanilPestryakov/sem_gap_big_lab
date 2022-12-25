@@ -1,4 +1,6 @@
 import math
+from BlockSchemeTree import BlockSchemeTree
+from BlockSchemeTree.Steps import ConditionStep, FuncStep, SimpleCodeStep
 
 
 class DataStructureConnector:
@@ -6,13 +8,17 @@ class DataStructureConnector:
         self.app_config = config
         self.text_elements = None
         self.figure_elements = None
+        self.total_list = []
+        self.bst = BlockSchemeTree()
 
     def run_pipeline(self):
         self.text_elements = DataStructureConnector.connect_elements_and_boxes(
             self.app_config.OUTPUT_TEXT, self.app_config.OUTPUT_TEXT_BOX, self.app_config.OUTPUT_TEXT_POINT)
         self.figure_elements = DataStructureConnector.connect_elements_and_boxes(
             self.app_config.OUTPUT_FIGURE, self.app_config.OUTPUT_FIGURE_BOX, self.app_config.OUTPUT_FIGURES_POINT)
-        return self.init_data_structure()
+        self.init_data_structure()
+        self.link_ds_with_tree()
+        return self.bst
 
     @classmethod
     def connect_elements_and_boxes(cls, text_file, box_file, coord_file):
@@ -94,8 +100,58 @@ class DataStructureConnector:
         total_list.extend(newlist_circle)
         total_list.extend(arguments)
         total_list.extend(points)
+        self.total_list = sorted(total_list, key=lambda f: f['coord'][1], reverse=False)
 
-        return total_list
+    def has_neighbour_yes(self, elem):
+        for num, item in enumerate(self.total_list):
+            dist_x = abs(elem['coord'][0] - item['coord'][0])
+            dist_y = item['coord'][1] - elem['coord'][1]
+            if dist_x < 10 and 0 < dist_y < 100:
+                return item, num
+        return {}, 0
+
+    def get_next_step(self, elem):
+        return self.has_neighbour_yes(elem)
+
+    def has_neighbour_no(self, elem):
+        for num, item in enumerate(self.total_list):
+            dist_x = item['coord'][0] - elem['coord'][0]
+            dist_y = item['coord'][1] - elem['coord'][1]
+            if 200 < dist_x < 400 and 0 < dist_y < 100:
+                return item, num
+        return {}, 0
+
+    def check_func_entry_args(self, func_idx):
+        if len(self.total_list) > (func_idx + 1) \
+                and self.total_list[func_idx + 1]['text'] == 'Quadrilateral' \
+                and abs(self.total_list[func_idx + 1]['coord'][1] - self.total_list[func_idx]['coord'][1]) < 20 \
+                and self.total_list[func_idx + 1]['coord'][0] > self.total_list[func_idx]['coord'][0]:
+            return True
+        return False
+
+    def link_ds_with_tree(self):
+        cur_tree = self.bst
+        cur_step = cur_tree
+        stack = []
+        i = 0
+        while True:
+            cur_fig = self.total_list[i]['text']
+            if cur_fig == 'CircleEndPoint':
+                break
+            elif cur_fig == 'Circle':
+                if self.check_func_entry_args(i):
+                    cur_step = FuncStep(self.total_list[i]['code'], self.total_list[i + 1]['code'], cur_step, cur_tree)
+                    i += 2
+                else:
+                    cur_step = FuncStep(self.total_list[i]['code'], [], cur_step, cur_tree)
+                    i += 1
+            elif cur_fig == 'Quadrilateral':
+                cur_step = SimpleCodeStep(self.total_list[i]['code'], cur_step, cur_tree)
+                i += 1
+            else:
+                i += 1
+        print(self.total_list)
+
 """
     def init_data_structure(self):
         EPS_DIST = 10

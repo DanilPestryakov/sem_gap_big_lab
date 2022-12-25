@@ -1,6 +1,9 @@
+from typing import Tuple, List
+
 from BlockSchemeTree import BlockSchemeTree
 from BlockSchemeTree.Steps import ConditionStep, CycleStep, FuncStep, SimpleCodeStep
 from DataStructureConnector import *
+
 
 def example_hello():
     print(f"{'_' * 30}\nExample hello")
@@ -21,7 +24,6 @@ def example_minimum():
     no_step = SimpleCodeStep('print(b)', no_tree, no_tree)
     cond = ConditionStep('a < b', yes_tree, no_tree, minimum, bst)
 
-
     print(bst.generate_code())
 
 
@@ -35,7 +37,6 @@ def example_maximum():
     cond = ConditionStep('b > a', yes_tree, None, str_1_step, bst)
     str_2_step = SimpleCodeStep('print(c)', cond, bst)
 
-
     print(bst.generate_code())
 
 
@@ -48,7 +49,6 @@ def example_decrement():
     iterator_step = CycleStep('a > b', '', iterable_tree, decrement, bst)
 
     print_step = SimpleCodeStep('print(a)', iterator_step, bst)
-
 
     print(bst.generate_code())
 
@@ -70,7 +70,7 @@ def MyTest():
     maximum = FuncStep('JustSoTest', ['a', 'b'], bst, bst)
 
     str_1_step = SimpleCodeStep('a = a', maximum, bst)
-    str_2_step = SimpleCodeStep('b = b',  str_1_step, bst)
+    str_2_step = SimpleCodeStep('b = b', str_1_step, bst)
 
     yes_tree = BlockSchemeTree()
 
@@ -100,7 +100,7 @@ def MyTest2():
     maximum = FuncStep('JustSoTest', ['a', 'b'], bst, bst)
 
     str_1_step = SimpleCodeStep('a = a', maximum, bst)
-    str_2_step = SimpleCodeStep('b = b',  str_1_step, bst)
+    str_2_step = SimpleCodeStep('b = b', str_1_step, bst)
 
     yes_tree = BlockSchemeTree()
     yes_step1 = SimpleCodeStep('yes = yes', yes_tree, yes_tree)
@@ -121,25 +121,30 @@ def MyTest2():
 
     print(bst.generate_code())
 
-def has_neighbour_yes(SCHEME, elem):
-    for item in SCHEME:
+
+def has_neighbour_yes(scheme: List[dict], elem: dict) -> Tuple[dict, int]:
+    for num, item in enumerate(scheme):
         dist_x = abs(elem['coord'][0] - item['coord'][0])
         dist_y = item['coord'][1] - elem['coord'][1]
         if dist_x < 10 and 0 < dist_y < 100:
-            return item
-    return None
+            return item, num
+    return {}, 0
 
 
-def has_neighbour_no(SCHEME, elem):
-    for item in SCHEME:
+def get_next_step(scheme: List[dict], elem: dict) -> Tuple[dict, int]:
+    return has_neighbour_yes(scheme, elem)
+
+
+def has_neighbour_no(scheme: List[dict], elem: dict) -> Tuple[dict, int]:
+    for num, item in enumerate(scheme):
         dist_x = item['coord'][0] - elem['coord'][0]
         dist_y = item['coord'][1] - elem['coord'][1]
         if 200 < dist_x < 400 and 0 < dist_y < 100:
-            return item
-    return None
+            return item, num
+    return {}, 0
+
 
 def DataStructureExample(SCHEME):
-
     print(f"{'_' * 30}\nExample minimum with DataStructure")
 
     print(SCHEME)
@@ -153,19 +158,20 @@ def DataStructureExample(SCHEME):
 
     for hexagon in cycles_begin:
         print('hexagon =', hexagon)
-        yes_n = has_neighbour_yes(SCHEME_SORT, hexagon)
-        print('yes_n =', yes_n)
-        no_n = has_neighbour_no(SCHEME_SORT, hexagon)
-        print('no_n =', no_n)
+        yes_n, num = has_neighbour_yes(SCHEME_SORT, hexagon)
+        print(f'yes_n = {yes_n}, num = {num}')
+        no_n, num = has_neighbour_no(SCHEME_SORT, hexagon)
+        print(f'no_n = {no_n}, num = {num}')
 
     levels = sorted(cycles_begin, key=lambda b: b['coord'][0], reverse=False)
 
- #   print()
- #   print(cycles_begin)
- #   print()
- #   print(cycles_end)
- #   print()
- #   print(levels)
+
+#   print()
+#   print(cycles_begin)
+#   print()
+#   print(cycles_end)
+#   print()
+#   print(levels)
 
 #    bst = BlockSchemeTree()
 
@@ -195,8 +201,8 @@ def DataStructureExample(SCHEME):
 
 
 if __name__ == "__main__":
-    #examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
-    #examples = [MyTest, MyTest2]
+    # examples = [example_hello, example_minimum, example_maximum, example_decrement, example_cycle, MyTest]
+    # examples = [MyTest, MyTest2]
     examples = [DataStructureExample]
     for example in examples:
         example()

@@ -7,9 +7,9 @@ im_handler = ImageHandler('./test_images/20221220211317.png')
 im_handler.run_pipeline()
 ds_connector = DataStructureConnector(im_handler.app_config)
 
-SCHEME = ds_connector.run_pipeline()
+bst_tree = ds_connector.run_pipeline()
 
-DataStructureExample(SCHEME)
+print(bst_tree.generate_code())
 
 cv2.waitKey()
 cv2.destroyAllWindows()
