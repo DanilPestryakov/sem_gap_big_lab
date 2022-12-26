@@ -1,6 +1,6 @@
 import math
 from BlockSchemeTree import BlockSchemeTree
-from BlockSchemeTree.Steps import ConditionStep, FuncStep, SimpleCodeStep
+from BlockSchemeTree.Steps import ConditionStep, CycleStep, FuncStep, SimpleCodeStep
 
 
 class DataStructureConnector:
@@ -184,6 +184,19 @@ class DataStructureConnector:
                     cur_step = ConditionStep(cur_cond[0]['code'], cur_tree, cur_cond[8], cur_cond[1], cur_cond[2])
                     cur_tree = cur_cond[2]
                     i += 1
+            elif cur_fig == 'HexagonCycle':
+                start_yes = False
+                iter_tree, idx_of_iter_subtree = self.get_next_step(self.total_list[i])
+                stack.append(
+                    (self.total_list[i], cur_step, cur_tree, iter_tree, i, idx_of_iter_subtree))
+                i = idx_of_iter_subtree
+                cur_tree = BlockSchemeTree()
+                cur_step = cur_tree
+            elif cur_fig == 'HexagonCycleEndPoint':
+                cur_cycle = stack.pop()
+                cur_step = CycleStep(cur_cycle[0]['code'], '', cur_tree, cur_cycle[1], cur_cycle[2])
+                cur_tree = cur_cycle[2]
+                i += 1
             else:
                 i += 1
         print(self.total_list)
