@@ -100,13 +100,13 @@ class DataStructureConnector:
         total_list.extend(newlist_circle)
         total_list.extend(arguments)
         total_list.extend(points)
-        self.total_list = sorted(total_list, key=lambda f: f['coord'][1], reverse=False)
+        self.total_list = sorted(total_list, key=lambda f: (f['coord'][1], f['coord'][0]), reverse=False)
 
     def has_neighbour_yes(self, elem):
         for num, item in enumerate(self.total_list):
             dist_x = abs(elem['coord'][0] - item['coord'][0])
             dist_y = item['coord'][1] - elem['coord'][1]
-            if dist_x < 10 and 0 < dist_y < 100:
+            if dist_x < 10 and 10 < dist_y:
                 return item, num
         return {}, 0
 
@@ -134,11 +134,13 @@ class DataStructureConnector:
         cur_step = cur_tree
         stack = []
         i = 0
+        start_yes = False
         while True:
             cur_fig = self.total_list[i]['text']
             if cur_fig == 'CircleEndPoint':
                 break
             elif cur_fig == 'Circle':
+                start_yes = False
                 if self.check_func_entry_args(i):
                     cur_step = FuncStep(self.total_list[i]['code'], self.total_list[i + 1]['code'], cur_step, cur_tree)
                     i += 2
@@ -147,7 +149,41 @@ class DataStructureConnector:
                     i += 1
             elif cur_fig == 'Quadrilateral':
                 cur_step = SimpleCodeStep(self.total_list[i]['code'], cur_step, cur_tree)
-                i += 1
+                if start_yes:
+                    step, new_i = self.get_next_step(self.total_list[i])
+                    if new_i == 0:
+                        i += 1
+                    else:
+                        i = new_i
+                else:
+                    i += 1
+                start_yes = False
+            elif cur_fig == 'HexagonCondition':
+                start_yes = False
+                no_tree, idx_of_no_subtree = self.has_neighbour_no(self.total_list[i])
+                yes_tree, idx_of_yes_subtree = self.has_neighbour_yes(self.total_list[i])
+                stack.append(
+                    (self.total_list[i], cur_step, cur_tree, yes_tree, no_tree, i, idx_of_yes_subtree,
+                     idx_of_no_subtree, None))
+                if no_tree:
+                    i = idx_of_no_subtree
+                else:
+                    i = idx_of_yes_subtree
+                cur_tree = BlockSchemeTree()
+                cur_step = cur_tree
+            elif cur_fig == 'EndPoint':
+                cur_cond = stack.pop()
+                if cur_cond[4]:
+                    stack.append((cur_cond[0], cur_cond[1], cur_cond[2], cur_cond[3], False, cur_cond[5], cur_cond[6],
+                                  cur_cond[7], cur_tree))
+                    i = cur_cond[6]
+                    start_yes = True
+                    cur_tree = BlockSchemeTree()
+                    cur_step = cur_tree
+                else:
+                    cur_step = ConditionStep(cur_cond[0]['code'], cur_tree, cur_cond[8], cur_cond[1], cur_cond[2])
+                    cur_tree = cur_cond[2]
+                    i += 1
             else:
                 i += 1
         print(self.total_list)
