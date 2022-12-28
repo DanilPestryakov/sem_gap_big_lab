@@ -19,6 +19,7 @@ class ImageHandler:
         self.image_arr = []
         self.lines = None
         self.all_boundboxes_text = []
+        self.all_figures = []
         self.img_inpainted = None
         self.enclosed_img = []
         self.edges = None
@@ -119,7 +120,7 @@ class ImageHandler:
 
     def expand_text_box(self):
         # extending text boundboxes boundaries for 2% (coordinates manipulation)
-        EPS = 0.02
+        EPS = 0.015
         f = open(self.app_config.OUTPUT_TEXT_BOX, "w+")  # file to write final coordinates of the text
         i = 0
         str1 = " "
@@ -150,9 +151,9 @@ class ImageHandler:
                 text = pytesseract.image_to_string(img_rgb, config=self.app_config.TESSERACT_CONFIG)
                 f.write(text)
         with open(self.app_config.OUTPUT_TEXT) as fr:
-            text_rev = fr.readlines()
+            text_rev1 = fr.readlines()
 
-        text_rev = [t for t in text_rev if re.search(r'(?i)[a-z]', t.lower())]
+        text_rev = [t for t in text_rev1 if re.search(r'(?i)[a-z]', t.lower()) and re.search(r'[^|-]', t.lower())]
         with open(self.app_config.OUTPUT_TEXT, 'w+') as f:
             for line in text_rev:
                 f.write(line)
@@ -220,8 +221,9 @@ class ImageHandler:
                 figure_coords = x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down
                 figure_coords = [str(i) for i in figure_coords]
                 crop_image = self.enclosed_img[y_up:y_down, x_left:x_right]
-                cropname = 'crop_' + str(j) + '.png'
+                cropname = f'crop_{j}.png'
                 path = os.path.join(self.app_config.FIGURES_DIR, cropname)
+                self.all_figures.append(path)
                 j += 1
                 cv2.imwrite(path, crop_image)
                 f.write(str2.join(figure_coords))
@@ -242,13 +244,13 @@ class ImageHandler:
 
     def recognize_figures(self):
         # list to store text extended boundboxes
-        all_boundboxes_figures = []
-        all_figure_files = os.listdir(self.app_config.FIGURES_DIR)
-        for figure in all_figure_files:
-            all_boundboxes_figures.append(os.path.join(self.app_config.FIGURES_DIR, figure))
+#        all_boundboxes_figures = []
+        #all_figure_files = os.listdir(self.app_config.FIGURES_DIR)
+#        for figure in self.all_figures:
+#            all_boundboxes_figures.append(os.path.join(self.app_config.FIGURES_DIR, figure))
 
         with open(self.app_config.OUTPUT_FIGURE, 'w+') as f:  # file to write scheme figures
-            for boundbox in all_boundboxes_figures:
+            for boundbox in self.all_figures:
 
                 # reading image
                 img1 = cv2.imread(boundbox)

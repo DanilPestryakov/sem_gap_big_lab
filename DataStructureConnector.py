@@ -106,7 +106,9 @@ class DataStructureConnector:
         for num, item in enumerate(self.total_list):
             dist_x = abs(elem['coord'][0] - item['coord'][0])
             dist_y = item['coord'][1] - elem['coord'][1]
-            if dist_x < 10 and 10 < dist_y:
+            #print(f"Has neighbour yes: elem {elem['code']}", f"item {item['code']}", dist_x, dist_y)
+            if -3 < dist_x < 10 and 10 < dist_y:
+                #print(f"Has neighbour yes: elem {elem['code']}", f"item {item['code']}", dist_x, dist_y)
                 return item, num
         return {}, 0
 
@@ -117,7 +119,9 @@ class DataStructureConnector:
         for num, item in enumerate(self.total_list):
             dist_x = item['coord'][0] - elem['coord'][0]
             dist_y = item['coord'][1] - elem['coord'][1]
-            if 200 < dist_x < 400 and 0 < dist_y < 100:
+            #print(f"Has neighbour no: elem {elem['code']}", f"item {item['code']}", dist_x, dist_y)
+            if 200 < dist_x < 400 and 10 < dist_y < 100:
+                #print(f"Has neighbour no: elem {elem['code']}", f"item {item['code']}", dist_x, dist_y)
                 return item, num
         return {}, 0
 
@@ -200,84 +204,3 @@ class DataStructureConnector:
             else:
                 i += 1
         print(self.total_list)
-
-"""
-    def init_data_structure(self):
-        EPS_DIST = 10
-
-        newlist = sorted(self.figure_elements, key=lambda i: i['coord'][1], reverse=False)
-
-        list1 = []  # filtered from circles (program begin/end)
-        circle = [d if d['text'] == 'Circle' else list1.append(d) for d in newlist]
-        circle = list(filter(lambda item: item is not None, circle))
-
-        newlist_circle = sorted(circle, key=lambda i: i['coord'][1], reverse=False)
-        program_begin = newlist_circle[0]
-        program_end = newlist_circle[1]
-
-        list2 = []  # filtered from program arguments figure
-        arguments = [d if d['text'] == 'Quadrilateral' and
-                          abs(d['coord'][1] - program_begin['coord'][1]) < EPS_DIST else list2.append(d) for d
-                     in
-                     list1]
-        arguments = list(filter(lambda item: item is not None, arguments))
-        #print(newlist)
-        #print(arguments)
-
-        points = []
-        with open(self.app_config.OUTPUT_LINES_POINT) as f:
-            lines = f.readlines()
-            for line in lines:
-                x, y = list(map(lambda x: int(x), line.split()))
-                points.append([x, y])
-
-        hexagon = [d for d in list2 if d['text'] == 'HexagonCondition' or d['text'] == 'HexagonCycle']
-        hexagon_end_point = [d['coord'] for d in list2 if d['text'] == 'HexagonCycleEndPoint']
-        points.extend(hexagon_end_point)
-
-        #    common_length_dist = len(list2)
-        #    for i in range(common_length_dist):
-        #        distance = []
-        #        for j in range(len(Points)):
-        #            for k in range(len(hexagon)):
-
-        cond_levels = [d['coord'][0] for d in hexagon]
-        cond_levels.append(1000)
-
-        yes_trees_elems = []
-        no_trees_elems = []
-        bst_tree_elems = []
-        BST_TREE = []
-        YES_TREES = []
-        NO_TREES = []
-
-        if points:
-            for i in range(len(hexagon)):
-                yes_trees_elems.append(hexagon[i])
-                no_trees_elems.append(hexagon[i])
-                for elem in list2:
-                    if hexagon[i]['coord'][1] < elem['coord'][1] < points[i][1] and int(cond_levels[i] * 0.9) < \
-                            elem['coord'][0] < int(cond_levels[i] * 1.1):
-                        yes_trees_elems.append(elem)
-                    elif hexagon[i]['coord'][1] < elem['coord'][1] < points[i][1] and int(cond_levels[i] * 1.1) < \
-                            elem['coord'][0] < int(cond_levels[i] * 4.0):
-                        no_trees_elems.append(elem)
-                    else:
-                        bst_tree_elems.append(elem)
-                yes_trees = sorted(yes_trees_elems, key=lambda i: i['coord'][1], reverse=False)
-                no_trees = sorted(no_trees_elems, key=lambda i: i['coord'][1], reverse=False)
-                YES_TREES.append(yes_trees)
-                NO_TREES.append(no_trees)
-
-        bst_tree_elems.append(program_begin)
-        bst_tree_elems.append(program_end)
-        bst_tree = sorted(bst_tree_elems, key=lambda i: i['coord'][1], reverse=False)
-        BST_TREE.append(bst_tree)
-
-        self.apply_text_to_figures(BST_TREE)
-        self.apply_text_to_figures(YES_TREES)
-        self.apply_text_to_figures(NO_TREES)
-        self.apply_text_to_figures_arguments(arguments)
-
-        return arguments, BST_TREE, YES_TREES, NO_TREES
-"""
