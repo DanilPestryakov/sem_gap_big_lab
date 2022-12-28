@@ -153,7 +153,8 @@ class ImageHandler:
         with open(self.app_config.OUTPUT_TEXT) as fr:
             text_rev1 = fr.readlines()
 
-        text_rev = [t for t in text_rev1 if re.search(r'(?i)[a-z]', t.lower()) and re.search(r'[^|-]', t.lower())]
+        text_rev = [t for t in text_rev1 if
+                    re.search(r'(?i)[a-z]', t.lower()) and not re.search(r'(?i)[\—\.]', t.lower())]
         with open(self.app_config.OUTPUT_TEXT, 'w+') as f:
             for line in text_rev:
                 f.write(line)
