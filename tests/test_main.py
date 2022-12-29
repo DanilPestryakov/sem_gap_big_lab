@@ -299,7 +299,88 @@ def test_20221228203303():
     print(f'Metric: {get_metric(predicted_code, original_code)}')
 
 
+def test_20221228213026():
+    im_handler = ImageHandler('../test_images/20221228213026.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def BigNumber(a, b, c):\n' \
+                    '\tn=100\n' \
+                    '\tif a>100:\n' \
+                    '\t\tn=a\n' \
+                    '\telse:\n' \
+                    '\t\tif b>100:\n' \
+                    '\t\t\tn=b\n' \
+                    '\t\telse:\n' \
+                    '\t\t\tif c>100:\n' \
+                    '\t\t\t\tn=c\n' \
+                    '\tprint("n=", n)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221228213026.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221228223920():
+    im_handler = ImageHandler('../test_images/20221228223920.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def BigNumber(a, b, c):\n' \
+                    '\tn=100\n' \
+                    '\tif a>100:\n' \
+                    '\t\tn=a\n' \
+                    '\t\tprint("n=a")\n' \
+                    '\telse:\n' \
+                    '\t\tif b>100:\n' \
+                    '\t\t\tn=b\n' \
+                    '\t\t\tprint("n=b")\n' \
+                    '\t\telse:\n' \
+                    '\t\t\tif c>100:\n' \
+                    '\t\t\t\tn=c\n' \
+                    '\t\t\t\tprint("n=c")\n' \
+                    '\tprint("n=", n)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221228223920.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221229140344():
+    im_handler = ImageHandler('../test_images/20221229140344.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def is_even(n=2):\n' \
+                    '\tif n==0:\n' \
+                    "\t\tprint('NA')\n" \
+                    "\telse:\n" \
+                    "\t\tif n%2==0:\n" \
+                    "\t\t\tprint('YES')\n" \
+                    "\t\telse:\n" \
+                    "\t\t\tprint('NO')"
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221229140344.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
 if __name__ == "__main__":
-    tests = [test_20221228203303]
+    tests = [test_20221214231758, test_20221216222919, test_20221229140344]
     for test in tests:
         test()
