@@ -228,7 +228,78 @@ def test_20221226122501():
     print(f'Metric: {get_metric(predicted_code, original_code)}')
 
 
+def test_20221226223928():
+    im_handler = ImageHandler('../test_images/20221226223928.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def cycle2():\n' \
+                    '\tfor i in range(1, 10):\n' \
+                    '\t\tfor j in range(1, 20):\n' \
+                    "\t\t\tprint(i, j)"
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221226223928.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221226235839():
+    im_handler = ImageHandler('../test_images/20221226235839.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def cycle_cond():\n' \
+                    '\tfor i in range(1, 10):\n' \
+                    '\t\tif i%2==0:\n' \
+                    '\t\t\tprint("even:")\n' \
+                    '\t\telse:\n' \
+                    '\t\t\tprint("not even:")\n' \
+                    '\t\tprint(i)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221226235839.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221228203303():
+    im_handler = ImageHandler('../test_images/20221228203303.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def BigNumber(a, b, c):\n' \
+                    '\tif a>100:\n' \
+                    '\t\tn=a\n' \
+                    '\telse:\n' \
+                    '\t\tif b>100:\n' \
+                    '\t\t\tn=b\n' \
+                    '\t\telse:\n' \
+                    '\t\t\tif c>100:\n' \
+                    '\t\t\t\tn=c\n' \
+                    '\t\t\telse:\n' \
+                    '\t\t\t\tn=100\n' \
+                    '\tprint("n=", n)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221228203303.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
 if __name__ == "__main__":
-    tests = [test_20221226122501]
+    tests = [test_20221228203303]
     for test in tests:
         test()
