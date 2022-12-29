@@ -17,7 +17,7 @@ def get_metric(predicted_str: str, original_str: str) -> float:
             j = 0
             while original_str_item[i] == '\t':
                 i += 1
-            while original_str_item[j] == '\t':
+            while predicted_str_list[num][j] == '\t':
                 j += 1
             if i != j:
                 str_num_with_success_tab -= 1
@@ -46,12 +46,53 @@ def test_20221214231758():
     if predicted_code[0] == '\n':
         predicted_code = predicted_code[1:]
 
-    print(f'\n\nGenerated code:\n\n{predicted_code}\n\n')
+    print('\n\nRun test 20221214231758.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221216222919():
+    im_handler = ImageHandler('../test_images/20221216222919.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def minimum(a=7, b=3):\n' \
+                    '\tif a<b:\n' \
+                    '\t\tprint(a)\n' \
+                    '\telse:\n' \
+                    '\t\tprint(b)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221216222919.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
+    print(f'Original code:\n\n{original_code}\n\n')
+    print(f'Metric: {get_metric(predicted_code, original_code)}')
+
+
+def test_20221216223250():
+    im_handler = ImageHandler('../test_images/20221216223250.png')
+    im_handler.run_pipeline()
+    ds_connector = DataStructureConnector(im_handler.app_config)
+
+    bst_tree = ds_connector.run_pipeline()
+    original_code = 'def cycle():\n' \
+                    '\tfor i in range(1, 11):\n' \
+                    '\t\tprint(i)'
+    predicted_code = bst_tree.generate_code()
+    if predicted_code[0] == '\n':
+        predicted_code = predicted_code[1:]
+
+    print('\n\nRun test 20221216223250.png:\n')
+    print(f'Generated code:\n\n{predicted_code}\n\n')
     print(f'Original code:\n\n{original_code}\n\n')
     print(f'Metric: {get_metric(predicted_code, original_code)}')
 
 
 if __name__ == "__main__":
-    tests = [test_20221214231758]
+    tests = [test_20221216223250]
     for test in tests:
         test()
