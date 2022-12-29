@@ -242,6 +242,7 @@ class ImageHandler:
             x_left, y_up, x_right, y_up, x_left, y_down, x_right, y_down = list(map(lambda x: int(x), line.split()))
             draw.polygon(((x_left, y_up), (x_right, y_up), (x_right, y_down), (x_left, y_down)), fill="white")
             image.save(self.app_config.EDGES_IMAGE)  # inpaint figures and save result (only edges)
+        f.close()
 
     def recognize_figures(self):
         # list to store text extended boundboxes
