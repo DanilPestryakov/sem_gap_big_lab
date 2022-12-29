@@ -5,3 +5,7 @@ venv
 /corrected_text
 /corrected_figures
 /detection_help_dir
+tests/auto_text
+tests/corrected_text
+tests/corrected_figures
+tests/detection_help_dir
